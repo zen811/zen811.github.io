@@ -1,90 +1,93 @@
 
 import { Room } from '../types';
 
-/**
- * In a real production scenario, you would fetch from a Google Sheet 
- * published as a CSV or via a small Google Apps Script API.
- * 
- * Example: fetch('https://docs.google.com/spreadsheets/d/ID/gviz/tq?tqx=out:json')
- */
+const SHEET_ID = '1bJbWy_tJDTFStTDDKc6MAkeAIEOQhicGyS4t2o16UD0';
+const GID = '1313399102';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
 
-const MOCK_ROOMS: Room[] = [
-  {
-    id: '1',
-    name: 'Premium Single Occupancy - Sector 45',
-    ownerName: 'Rahul Sharma',
-    phoneNumber: '+91 9876543210',
-    price: 15000,
-    location: 'HSR Layout, Sector 45, Bangalore',
-    locationLink: 'https://maps.google.com/?q=HSR+Layout+Sector+45',
-    description: 'Experience premium living in the heart of Sector 45. This single occupancy room is designed for working professionals and students who value privacy and comfort. The room comes fully furnished with a king-sized bed, ergonomic workstation, and ample storage space.',
-    occupancyType: 'Single',
-    genderPreference: 'Male',
-    photos: [
-      'https://picsum.photos/id/20/800/600',
-      'https://picsum.photos/id/21/800/600',
-      'https://picsum.photos/id/22/800/600',
-      'https://picsum.photos/id/23/800/600',
-      'https://picsum.photos/id/24/800/600',
-    ],
-    amenities: ['High-speed Wi-Fi', 'Air Conditioning', 'Daily Laundry', '3 Meals Provided', '24/7 Power Backup', 'Housekeeping'],
-    rules: ['No Smoking', 'No Pets', 'Visitors till 9 PM', 'Quiet Hours after 11 PM'],
-    rating: 4.8,
-    reviewsCount: 124,
-    isVerified: true,
-    featured: true
-  },
-  {
-    id: '2',
-    name: 'Luxury Double Sharing - Koramangala',
-    ownerName: 'Priya Verma',
-    phoneNumber: '+91 8887776665',
-    price: 12500,
-    location: '5th Block, Koramangala, Bangalore',
-    locationLink: 'https://maps.google.com/?q=Koramangala+5th+Block',
-    description: 'Spacious double sharing room in a vibrant neighborhood. Perfect for friends or siblings. Close to top tech parks and entertainment zones.',
-    occupancyType: 'Double',
-    genderPreference: 'Female',
-    photos: [
-      'https://picsum.photos/id/30/800/600',
-      'https://picsum.photos/id/31/800/600',
-      'https://picsum.photos/id/32/800/600',
-    ],
-    amenities: ['Wi-Fi', 'Fridge', 'Parking', 'Kitchen Access'],
-    rules: ['No Alcohol', 'Veg Only Kitchen'],
-    rating: 4.5,
-    reviewsCount: 89,
-    isVerified: true
-  },
-  {
-    id: '3',
-    name: 'Budget Triple Sharing - Whitefield',
-    ownerName: 'Amit Gupta',
-    phoneNumber: '+91 7776665554',
-    price: 8000,
-    location: 'Near ITPL Back Gate, Whitefield, Bangalore',
-    locationLink: 'https://maps.google.com/?q=ITPL+Whitefield',
-    description: 'Affordable and clean triple sharing accommodation for freshers working in ITPL. All basic facilities provided at an unbeatable price.',
-    occupancyType: 'Triple',
-    genderPreference: 'Male',
-    photos: [
-      'https://picsum.photos/id/40/800/600',
-      'https://picsum.photos/id/41/800/600',
-      'https://picsum.photos/id/42/800/600',
-    ],
-    amenities: ['Wi-Fi', 'Common TV', 'Laundry Service', 'Security'],
-    rules: ['Curfew at 10:30 PM'],
-    rating: 4.2,
-    reviewsCount: 56,
-    isVerified: false
+/**
+ * Converts Google Drive "open?id=" or "file/d/..." links into direct image URLs.
+ * Direct images are served via https://lh3.googleusercontent.com/d/{FILE_ID}
+ */
+const transformDriveUrl = (url: string): string => {
+  if (!url) return '';
+  const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
+  if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
+    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
   }
-];
+  return url;
+};
 
 export const fetchRooms = async (): Promise<Room[]> => {
-  // Simulating network latency
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(MOCK_ROOMS);
-    }, 500);
-  });
+  try {
+    const response = await fetch(SHEET_URL);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const text = await response.text();
+    const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
+    
+    if (!match || !match[1]) {
+      console.error("Format error: Ensure the sheet is 'Published to the web'.");
+      return [];
+    }
+
+    const jsonData = JSON.parse(match[1]);
+    
+    if (jsonData.status === 'error') {
+      console.error("API error:", jsonData.errors);
+      return [];
+    }
+
+    const rows = jsonData.table.rows;
+    if (!rows || rows.length === 0) return [];
+
+    return rows.map((row: any, index: number) => {
+      const cols = row.c;
+      
+      const getValue = (idx: number) => cols[idx]?.v ?? '';
+      const getNum = (idx: number) => {
+        const val = cols[idx]?.v;
+        if (typeof val === 'number') return val;
+        if (typeof val === 'string') return parseFloat(val.replace(/[^0-9.]/g, '')) || 0;
+        return 0;
+      };
+
+      const verificationStatus = getValue(13);
+      const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
+
+      // Photos are often comma-separated links in the sheet
+      const rawPhotos = String(getValue(10))
+        .split(/[,|\s\n]+/) // Split by comma, pipe, space or newline
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+
+      const transformedPhotos = rawPhotos.map(transformDriveUrl);
+
+      return {
+        id: `room-${index}-${Date.now()}`,
+        name: String(getValue(1) || 'Premium Accommodation'),
+        ownerName: String(getValue(2) || 'Verified Partner'),
+        phoneNumber: String(getValue(3) || 'N/A'),
+        price: getNum(4),
+        location: String(getValue(5) || 'Bangalore'),
+        locationLink: String(getValue(6) || '#'),
+        description: String(getValue(7) || 'Contact owner for more details about this property.'),
+        occupancyType: (getValue(8) as any) || 'Single',
+        genderPreference: (getValue(9) as any) || 'Unisex',
+        photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
+        amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
+        rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
+        rating: 4.5,
+        reviewsCount: Math.floor(Math.random() * 50) + 10,
+        isVerified: isVerified,
+      };
+    }).filter((room: Room) => room.isVerified === true);
+
+  } catch (error) {
+    console.error("Error fetching room data:", error);
+    return [];
+  }
 };

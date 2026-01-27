@@ -8,19 +8,24 @@ interface RoomCardProps {
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
+  const mainPhoto = room.photos[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
+
   return (
     <div 
       className="bg-[#1e1e1e] border border-white/10 rounded-2xl overflow-hidden hover:border-[#ff8000]/30 transition-all cursor-pointer group flex flex-col h-full"
       onClick={() => onClick(room)}
     >
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden bg-white/5">
         {room.featured && (
           <div className="absolute top-3 left-3 z-10 bg-[#ff8000] text-white text-[10px] font-bold px-2 py-1 rounded">FEATURED</div>
         )}
         <img 
-          src={room.photos[0]} 
+          src={mainPhoto} 
           alt={room.name} 
           className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
         <div className="absolute bottom-3 left-3 right-3 flex justify-between items-center">
