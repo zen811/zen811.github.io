@@ -19,6 +19,11 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
         {room.featured && (
           <div className="absolute top-3 left-3 z-10 bg-[#ff8000] text-white text-[10px] font-bold px-2 py-1 rounded">FEATURED</div>
         )}
+        <div className="absolute top-3 right-3 z-10 flex flex-col gap-1">
+          <div className="bg-black/60 backdrop-blur-md text-white text-[9px] font-bold px-2 py-1 rounded-full border border-white/10 uppercase tracking-tighter">
+            {room.flatType}
+          </div>
+        </div>
         <img 
           src={mainPhoto} 
           alt={room.name} 
@@ -44,11 +49,17 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
           <span className="line-clamp-1">{room.location}</span>
         </div>
         
-        <div className="flex flex-wrap gap-2 mb-4">
-          {room.amenities.slice(0, 3).map(amenity => (
-            <span key={amenity} className="text-[10px] bg-white/5 text-gray-400 px-2 py-1 rounded border border-white/5">{amenity}</span>
-          ))}
-          {room.amenities.length > 3 && <span className="text-[10px] text-gray-500 px-1 py-1">+{room.amenities.length - 3}</span>}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="text-[10px] font-bold text-[#ff8000] bg-[#ff8000]/10 px-2 py-0.5 rounded border border-[#ff8000]/20">
+            {room.occupancyType} Sharing
+          </span>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+            room.genderPreference === 'Male' ? 'text-blue-400 bg-blue-400/10 border-blue-400/20' : 
+            room.genderPreference === 'Female' ? 'text-pink-400 bg-pink-400/10 border-pink-400/20' : 
+            'text-green-400 bg-green-400/10 border-green-400/20'
+          }`}>
+            {room.genderPreference}
+          </span>
         </div>
 
         <div className="mt-auto">

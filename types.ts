@@ -10,6 +10,7 @@ export interface Room {
   description: string;
   occupancyType: 'Single' | 'Double' | 'Triple';
   genderPreference: 'Male' | 'Female' | 'Unisex';
+  flatType: string; // e.g., "2 BHK", "3 BHK"
   photos: string[];
   amenities: string[];
   rules: string[];
@@ -22,6 +23,6 @@ export interface Room {
 export interface FilterState {
   priceRange: [number, number];
   roomTypes: string[];
-  gender: string;
+  gender: string[]; // Changed to array for multi-selection
   searchQuery: string;
 }

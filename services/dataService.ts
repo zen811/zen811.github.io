@@ -5,10 +5,6 @@ const SHEET_ID = '1bJbWy_tJDTFStTDDKc6MAkeAIEOQhicGyS4t2o16UD0';
 const GID = '1313399102';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
 
-/**
- * Converts Google Drive "open?id=" or "file/d/..." links into direct image URLs.
- * Direct images are served via https://lh3.googleusercontent.com/d/{FILE_ID}
- */
 const transformDriveUrl = (url: string): string => {
   if (!url) return '';
   const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
@@ -58,9 +54,8 @@ export const fetchRooms = async (): Promise<Room[]> => {
       const verificationStatus = getValue(13);
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
 
-      // Photos are often comma-separated links in the sheet
       const rawPhotos = String(getValue(10))
-        .split(/[,|\s\n]+/) // Split by comma, pipe, space or newline
+        .split(/[,|\s\n]+/)
         .map(p => p.trim())
         .filter(p => p.length > 0);
 
@@ -77,6 +72,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
         description: String(getValue(7) || 'Contact owner for more details about this property.'),
         occupancyType: (getValue(8) as any) || 'Single',
         genderPreference: (getValue(9) as any) || 'Unisex',
+        flatType: String(getValue(17) || 'Flat'), 
         photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),

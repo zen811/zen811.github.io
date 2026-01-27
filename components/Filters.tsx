@@ -15,12 +15,19 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters }) => {
     setFilters({ ...filters, roomTypes: newTypes });
   };
 
+  const toggleGender = (g: string) => {
+    const newGenders = filters.gender.includes(g)
+      ? filters.gender.filter(item => item !== g)
+      : [...filters.gender, g];
+    setFilters({ ...filters, gender: newGenders });
+  };
+
   return (
     <div className="w-full md:w-64 flex-shrink-0 space-y-8 sticky top-24">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Filters</h3>
         <button 
-          onClick={() => setFilters({ priceRange: [5000, 30000], roomTypes: [], gender: 'Unisex', searchQuery: '' })}
+          onClick={() => setFilters({ priceRange: [5000, 30000], roomTypes: [], gender: [], searchQuery: '' })}
           className="text-xs text-[#ff8000] hover:underline"
         >
           Clear All
@@ -52,7 +59,7 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters }) => {
       <section className="space-y-4">
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-[#ff8000] text-sm">bed</span>
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Room Type</h4>
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Sharing Type</h4>
         </div>
         <div className="space-y-2">
           {['Single', 'Double', 'Triple'].map(type => (
@@ -75,13 +82,14 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters }) => {
           <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Gender Preference</h4>
         </div>
         <div className="grid grid-cols-1 gap-2">
-          {['Male', 'Female', 'Unisex'].map(g => (
+          {['Male', 'Female'].map(g => (
             <button 
               key={g}
-              onClick={() => setFilters({ ...filters, gender: g })}
-              className={`px-4 py-2 text-sm rounded-lg border text-left transition-all ${filters.gender === g ? 'bg-[#ff8000]/10 border-[#ff8000] text-[#ff8000]' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
+              onClick={() => toggleGender(g)}
+              className={`flex items-center justify-between px-4 py-3 text-sm rounded-xl border transition-all ${filters.gender.includes(g) ? 'bg-[#ff8000]/10 border-[#ff8000] text-[#ff8000]' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
             >
-              {g}
+              <span>{g}</span>
+              {filters.gender.includes(g) && <span className="material-symbols-outlined text-xs">done</span>}
             </button>
           ))}
         </div>

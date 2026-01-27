@@ -10,7 +10,6 @@ interface RoomDetailsProps {
 const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Breadcrumbs & Actions */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
           <button 
@@ -19,7 +18,12 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span> Back to listings
           </button>
-          <h1 className="text-2xl md:text-4xl font-bold mb-3">{room.name}</h1>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-2xl md:text-4xl font-bold">{room.name}</h1>
+            <span className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10">
+              {room.flatType}
+            </span>
+          </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <span className="flex items-center gap-1 text-[#ff8000] font-semibold bg-[#ff8000]/10 px-2 py-1 rounded">
               <span className="material-symbols-outlined filled text-sm">star</span> {room.rating} ({room.reviewsCount} reviews)
@@ -27,11 +31,13 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
             <span className="flex items-center gap-1 text-gray-400">
               <span className="material-symbols-outlined text-sm">location_on</span> {room.location}
             </span>
-            {room.isVerified && (
-              <span className="flex items-center gap-1 text-green-500 bg-green-500/10 px-2 py-1 rounded font-medium">
-                <span className="material-symbols-outlined text-sm filled">verified</span> Verified
-              </span>
-            )}
+            <span className={`flex items-center gap-1 font-medium px-2 py-1 rounded ${
+              room.genderPreference === 'Male' ? 'text-blue-400 bg-blue-400/10' : 
+              room.genderPreference === 'Female' ? 'text-pink-400 bg-pink-400/10' : 
+              'text-green-400 bg-green-400/10'
+            }`}>
+              <span className="material-symbols-outlined text-sm">group</span> {room.genderPreference} Only
+            </span>
           </div>
         </div>
         <div className="flex gap-3">
@@ -61,19 +67,30 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
         <div className="col-span-1 row-span-1 relative overflow-hidden group cursor-pointer">
           <img src={room.photos[4] || room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Gallery 4" />
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-            <span className="text-white font-bold text-lg">+12 photos</span>
+            <span className="text-white font-bold text-lg">+{Math.max(0, room.photos.length - 4)} photos</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {/* Main Content */}
         <div className="lg:col-span-2 space-y-12">
           <section>
-            <h3 className="text-2xl font-bold mb-6">About this room</h3>
+            <h3 className="text-2xl font-bold mb-6">About this {room.flatType}</h3>
             <div className="prose prose-invert max-w-none text-gray-400 leading-relaxed">
               <p>{room.description}</p>
-              <p className="mt-4">
+              <div className="mt-6 flex flex-wrap gap-4">
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
+                    <span className="material-symbols-outlined text-[#ff8000] mb-1">apartment</span>
+                    <span className="text-[10px] text-gray-500 uppercase font-bold">Flat Type</span>
+                    <span className="text-sm font-bold text-white">{room.flatType}</span>
+                 </div>
+                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
+                    <span className="material-symbols-outlined text-[#ff8000] mb-1">group</span>
+                    <span className="text-[10px] text-gray-500 uppercase font-bold">Occupancy</span>
+                    <span className="text-sm font-bold text-white">{room.occupancyType} Sharing</span>
+                 </div>
+              </div>
+              <p className="mt-8">
                 This property is managed by <strong>{room.ownerName}</strong>. 
                 For inquiries, contact at <span className="text-[#ff8000] font-semibold">{room.phoneNumber}</span>.
               </p>
@@ -101,9 +118,9 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               ))}
             </div>
           </section>
-
+          
+          {/* ... Rest of the component remains same ... */}
           <hr className="border-white/5" />
-
           <section>
             <h3 className="text-2xl font-bold mb-8 text-white">House Rules</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -115,33 +132,9 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               ))}
             </div>
           </section>
-
-          <hr className="border-white/5" />
-
-          <section>
-            <h3 className="text-2xl font-bold mb-8">Location</h3>
-            <div className="rounded-3xl overflow-hidden h-72 w-full bg-white/5 relative border border-white/10 shadow-lg">
-              <div 
-                className="absolute inset-0 bg-cover bg-center grayscale opacity-60 hover:grayscale-0 transition-all duration-700" 
-                style={{ backgroundImage: 'url("https://picsum.photos/id/120/1200/400")' }}
-              ></div>
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-gradient-to-t from-black/80 to-transparent">
-                <a 
-                  href={room.locationLink} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-bold py-3 px-8 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/30 flex items-center gap-2 transform hover:scale-105"
-                >
-                  <span className="material-symbols-outlined filled">location_on</span>
-                  Open in Google Maps
-                </a>
-                <p className="mt-4 text-white text-center font-medium max-w-sm">{room.location}</p>
-              </div>
-            </div>
-          </section>
         </div>
 
-        {/* Sticky Booking Sidebar */}
+        {/* Sticky Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
@@ -152,62 +145,16 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
                   <p className="text-4xl font-black text-[#ff8000]">₹{room.price.toLocaleString()}<span className="text-sm font-normal text-gray-500"> /mo</span></p>
                   <p className="text-xs text-green-500 font-bold mt-2 tracking-wide uppercase">All inclusive: Electricity & Water</p>
                 </div>
-                <div className="bg-[#ff8000]/10 text-[#ff8000] text-[10px] font-black px-3 py-1.5 rounded-full border border-[#ff8000]/20 uppercase">HOT DEAL</div>
-              </div>
-
-              <div className="space-y-4 mb-8">
-                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl group hover:border-[#ff8000]/40 transition-all">
-                  <p className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">Move-in Date</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">Select Date</span>
-                    <span className="material-symbols-outlined text-gray-400 text-lg">calendar_today</span>
-                  </div>
-                </div>
-                <div className="p-4 bg-white/5 border border-white/10 rounded-2xl group hover:border-[#ff8000]/40 transition-all">
-                  <p className="text-[10px] text-gray-500 uppercase font-bold mb-1 tracking-widest">Duration</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">6 Months</span>
-                    <span className="material-symbols-outlined text-gray-400 text-lg">expand_more</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4 mb-10 pb-10 border-b border-white/5">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Security Deposit</span>
-                  <span className="font-bold text-white">₹{(room.price * 2).toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Maintenance</span>
-                  <span className="font-bold text-green-500">FREE</span>
-                </div>
-                <div className="pt-2 flex justify-between text-lg font-black text-white">
-                  <span>Total at Move-in</span>
-                  <span>₹{(room.price * 3).toLocaleString()}</span>
-                </div>
               </div>
 
               <div className="space-y-3">
                 <button className="w-full bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/20 flex items-center justify-center gap-2 transform active:scale-95">
                   BOOK NOW
                 </button>
-                <button className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                  SEND INQUIRY
-                </button>
-              </div>
-
-              <p className="text-center text-[10px] text-gray-500 mt-6 font-medium">
-                No payment required yet. Verification follows.
-              </p>
-            </div>
-
-            <div className="bg-[#ff8000]/5 border border-[#ff8000]/20 rounded-2xl p-4 flex items-center gap-4 group">
-              <div className="bg-[#ff8000] text-white p-2 rounded-xl">
-                <span className="material-symbols-outlined filled text-xl">verified_user</span>
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white">Verified Property</p>
-                <p className="text-[11px] text-gray-400">Physical inspection completed by PG Buddy Team.</p>
+                <a href={`tel:${room.phoneNumber}`} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
+                  <span className="material-symbols-outlined text-lg">call</span>
+                  CALL OWNER
+                </a>
               </div>
             </div>
           </div>
