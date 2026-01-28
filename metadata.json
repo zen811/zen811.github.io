@@ -1,5 +1,7 @@
 {
   "name": "Copy of PG Buddy - Premium Living",
   "description": "A dynamic room booking platform for modern PG accommodations. Featuring real-time listings, advanced filtering, and a premium dark-themed UI optimized for mobile deployment.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }

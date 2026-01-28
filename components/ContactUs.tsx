@@ -26,10 +26,10 @@ const ContactUs: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
           <a 
-            href="mailto:cupcake811hk@gmail.com" 
+            href="mailto:support@pgbuddy.com" 
             className="text-xl font-bold text-[#ff8000] hover:underline block mb-2"
           >
-            cupcake811hk@gmail.com
+            support@pgbuddy.com
           </a>
         </div>
 

@@ -10,7 +10,7 @@ export interface Room {
   description: string;
   occupancyType: 'Single' | 'Double' | 'Triple';
   genderPreference: 'Male' | 'Female' | 'Unisex';
-  flatType: string; // e.g., "2 BHK", "3 BHK"
+  flatType: string;
   photos: string[];
   amenities: string[];
   rules: string[];
@@ -18,11 +18,27 @@ export interface Room {
   reviewsCount: number;
   isVerified: boolean;
   featured?: boolean;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+  distance?: number; // Distance in km from user
+}
+
+// Added missing User interface to fix "Module '"../types"' has no exported member 'User'" error
+export interface User {
+  name: string;
+  phoneNumber: string;
+  password?: string;
+  avatar?: string;
 }
 
 export interface FilterState {
   priceRange: [number, number];
   roomTypes: string[];
-  gender: string[]; // Changed to array for multi-selection
+  gender: string[];
   searchQuery: string;
+  nearMe: boolean;
 }
+
+export type View = 'home' | 'listings' | 'details' | 'help' | 'contact' | 'terms';

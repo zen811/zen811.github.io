@@ -2,12 +2,20 @@
 import React from 'react';
 import { Room } from '../types';
 
+// Placeholder URL for user enquiry form
+const ENQUIRY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScP_placeholder_enquiry_form/viewform';
+
 interface RoomDetailsProps {
   room: Room;
   onBack: () => void;
 }
 
 const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
+  const handleEnquiry = () => {
+    // Redirecting user to Google Form to take basic info
+    window.open(`${ENQUIRY_FORM_URL}?usp=pp_url&entry.123456789=${encodeURIComponent(room.name)}`, '_blank');
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
@@ -20,13 +28,13 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
           </button>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-2xl md:text-4xl font-bold">{room.name}</h1>
-            <span className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10">
+            <span className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10 uppercase">
               {room.flatType}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <span className="flex items-center gap-1 text-[#ff8000] font-semibold bg-[#ff8000]/10 px-2 py-1 rounded">
-              <span className="material-symbols-outlined filled text-sm">star</span> {room.rating} ({room.reviewsCount} reviews)
+              <span className="material-symbols-outlined filled text-sm">star</span> {room.rating.toFixed(1)} ({room.reviewsCount} reviews)
             </span>
             <span className="flex items-center gap-1 text-gray-400">
               <span className="material-symbols-outlined text-sm">location_on</span> {room.location}
@@ -82,7 +90,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
                     <span className="material-symbols-outlined text-[#ff8000] mb-1">apartment</span>
                     <span className="text-[10px] text-gray-500 uppercase font-bold">Flat Type</span>
-                    <span className="text-sm font-bold text-white">{room.flatType}</span>
+                    <span className="text-sm font-bold text-white uppercase">{room.flatType}</span>
                  </div>
                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
                     <span className="material-symbols-outlined text-[#ff8000] mb-1">group</span>
@@ -92,7 +100,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               </div>
               <p className="mt-8">
                 This property is managed by <strong>{room.ownerName}</strong>. 
-                For inquiries, contact at <span className="text-[#ff8000] font-semibold">{room.phoneNumber}</span>.
+                For general enquiries, call at <span className="text-[#ff8000] font-semibold">{room.phoneNumber}</span>.
               </p>
             </div>
           </section>
@@ -118,20 +126,6 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               ))}
             </div>
           </section>
-          
-          {/* ... Rest of the component remains same ... */}
-          <hr className="border-white/5" />
-          <section>
-            <h3 className="text-2xl font-bold mb-8 text-white">House Rules</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {room.rules.map(rule => (
-                <div key={rule} className="flex items-center gap-3 text-gray-400">
-                  <span className="material-symbols-outlined text-sm text-[#ff8000]">check_circle</span>
-                  <span className="text-sm">{rule}</span>
-                </div>
-              ))}
-            </div>
-          </section>
         </div>
 
         {/* Sticky Sidebar */}
@@ -143,19 +137,26 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               <div className="flex justify-between items-start mb-8">
                 <div>
                   <p className="text-4xl font-black text-[#ff8000]">₹{room.price.toLocaleString()}<span className="text-sm font-normal text-gray-500"> /mo</span></p>
-                  <p className="text-xs text-green-500 font-bold mt-2 tracking-wide uppercase">All inclusive: Electricity & Water</p>
+                  <p className="text-xs text-green-500 font-bold mt-2 tracking-wide uppercase">All inclusive utilities</p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <button className="w-full bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/20 flex items-center justify-center gap-2 transform active:scale-95">
-                  BOOK NOW
+                <button 
+                  onClick={handleEnquiry}
+                  className="w-full bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/20 flex items-center justify-center gap-2 transform active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-lg">contact_mail</span>
+                  CHECK AVAILABILITY
                 </button>
                 <a href={`tel:${room.phoneNumber}`} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-lg">call</span>
-                  CALL OWNER
+                  CALL MANAGER
                 </a>
               </div>
+              <p className="text-[10px] text-gray-500 mt-6 text-center leading-relaxed">
+                By clicking "Check Availability", you will be redirected to a contact form to provide your details.
+              </p>
             </div>
           </div>
         </div>

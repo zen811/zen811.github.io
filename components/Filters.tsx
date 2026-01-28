@@ -27,12 +27,27 @@ const Filters: React.FC<FiltersProps> = ({ filters, setFilters }) => {
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold">Filters</h3>
         <button 
-          onClick={() => setFilters({ priceRange: [5000, 30000], roomTypes: [], gender: [], searchQuery: '' })}
+          onClick={() => setFilters({ priceRange: [5000, 30000], roomTypes: [], gender: [], searchQuery: '', nearMe: false })}
           className="text-xs text-[#ff8000] hover:underline"
         >
           Clear All
         </button>
       </div>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="material-symbols-outlined text-[#ff8000] text-sm">my_location</span>
+            <h4 className="text-sm font-semibold uppercase tracking-wider text-gray-400">Nearby</h4>
+          </div>
+          <button 
+            onClick={() => setFilters({ ...filters, nearMe: !filters.nearMe })}
+            className={`w-10 h-5 rounded-full transition-all relative ${filters.nearMe ? 'bg-[#ff8000]' : 'bg-gray-700'}`}
+          >
+            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${filters.nearMe ? 'right-1' : 'left-1'}`}></div>
+          </button>
+        </div>
+      </section>
 
       <section className="space-y-4">
         <div className="flex items-center gap-2">
