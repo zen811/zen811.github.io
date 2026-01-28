@@ -84,7 +84,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onBrowse, onListProperty, fea
             { icon: 'calendar_month', title: 'Visit', desc: 'Schedule a virtual walkthrough or a physical tour at your convenience with our direct booking system.' },
             { icon: 'payments', title: 'Book', desc: 'Secure your stay instantly with easy and safe online payments. No hidden charges, total transparency.' }
           ].map((item, idx) => (
-            <div key={idx} className="bg-[#1e1e1e] border border-white/5 p-10 rounded-3xl group hover:border-[#ff8000]/20 transition-all">
+            <div 
+              key={idx} 
+              onClick={onBrowse}
+              className="bg-[#1e1e1e] border border-white/5 p-10 rounded-3xl group hover:border-[#ff8000]/20 transition-all cursor-pointer active:scale-95 transform"
+            >
               <div className="w-12 h-12 bg-[#ff8000]/10 rounded-xl flex items-center justify-center text-[#ff8000] mb-8 group-hover:scale-110 transition-transform">
                 <span className="material-symbols-outlined text-2xl">{item.icon}</span>
               </div>

@@ -16,15 +16,15 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, enquiryFormUrl }) => {
     <header className="sticky top-0 z-50 bg-[#181410]/95 backdrop-blur-md border-b border-white/5 px-4 md:px-10 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo Section */}
-        <div className="flex items-center gap-2 cursor-pointer group" onClick={() => onNavigate('home')}>
-          <div className="h-8 w-8 flex items-center justify-center">
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onNavigate('home')}>
+          <div className="h-10 w-10 flex items-center justify-center overflow-hidden">
             <img 
               src="logo.png" 
-              alt="Logo" 
-              className="h-full w-full object-contain" 
+              alt="PG Buddy Logo" 
+              className="h-full w-full object-contain transform group-hover:scale-110 transition-transform duration-300" 
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'https://i.ibb.co/3ykXJzV/logo-placeholder.png';
+                target.style.display = 'none';
               }} 
             />
           </div>
@@ -39,11 +39,11 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, enquiryFormUrl }) => {
           <button onClick={() => onNavigate('contact')} className="text-sm font-medium text-gray-300 hover:text-[#ff8000] transition-colors">Contact</button>
         </nav>
 
-        {/* Action Button - Now redirects to external form */}
+        {/* Action Button */}
         <div className="flex items-center gap-4">
           <button 
             onClick={handleFindRoom}
-            className="bg-[#ff8000] text-white text-xs font-bold px-6 py-2 rounded-lg hover:bg-[#ff8000]/90 transition-all active:scale-95 shadow-lg shadow-[#ff8000]/10"
+            className="bg-[#ff8000] text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-[#ff8000]/90 transition-all active:scale-95 shadow-lg shadow-[#ff8000]/10 uppercase tracking-wider"
           >
             Find a Room
           </button>

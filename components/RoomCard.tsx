@@ -15,19 +15,20 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
       className="bg-[#1e1e1e] border border-white/10 rounded-2xl overflow-hidden hover:border-[#ff8000]/30 transition-all cursor-pointer group flex flex-col h-full"
       onClick={() => onClick(room)}
     >
-      <div className="relative h-48 overflow-hidden bg-white/5">
+      {/* Aspect ratio container improves performance score by preventing layout shift */}
+      <div className="relative aspect-video overflow-hidden bg-white/5">
         {room.featured && (
           <div className="absolute top-3 left-3 z-10 bg-[#ff8000] text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg">FEATURED</div>
         )}
         
-        {/* We removed the top-right pill which was showing sensitive email data */}
-        
         <img 
           src={mainPhoto} 
           alt={room.name} 
-          className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+          loading="lazy"
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
@@ -35,7 +36,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
            <span className="text-white font-bold text-lg drop-shadow-md">₹{room.price.toLocaleString()}<span className="text-[10px] font-normal opacity-70">/mo</span></span>
            <div className="bg-black/50 backdrop-blur-md px-2 py-0.5 rounded flex items-center gap-1 border border-white/5">
               <span className="material-symbols-outlined text-[#ff8000] text-xs filled">star</span>
-              {/* Force string formatting to 1 decimal place */}
               <span className="text-xs font-semibold text-white">{room.rating.toFixed(1)}</span>
            </div>
         </div>
@@ -52,7 +52,6 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick }) => {
           <span className="text-[10px] font-bold text-[#ff8000] bg-[#ff8000]/10 px-2 py-0.5 rounded border border-[#ff8000]/20">
             {room.occupancyType} Sharing
           </span>
-          {/* Only show flatType if it's not looking like sensitive data */}
           {!room.flatType.includes('@') && (
             <span className="text-[10px] font-bold text-gray-400 bg-white/5 px-2 py-0.5 rounded border border-white/10 uppercase">
               {room.flatType}

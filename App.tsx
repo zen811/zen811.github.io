@@ -13,6 +13,7 @@ import LandingPage from './components/LandingPage';
 
 const LIST_PROPERTY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfnlEk8iCcgoU9uCJzbQ819ymUQTAQTIuoKpUfzfSucov0hTg/viewform?usp=sharing'; 
 const ENQUIRY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScGf72h7DSjeSOFjR-f8J3ww8FfeHo0rUwKexeSE9-pPJarxQ/viewform?usp=publish-editor';
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.pgbuddy.app'; // Placeholder URL
 
 // Haversine formula for distance calculation
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -115,17 +116,15 @@ const App: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#181410] flex flex-col items-center justify-center text-white p-6">
-        <div className="h-16 w-16 mb-8 animate-pulse">
+        <div className="h-24 w-24 mb-8 animate-bounce">
           <img 
             src="logo.png" 
-            alt="Logo" 
+            alt="PG Buddy Logo" 
             className="h-full w-full object-contain" 
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = 'https://i.ibb.co/3ykXJzV/logo-placeholder.png';
-            }} 
+            onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
           />
         </div>
-        <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-xs">Syncing PG Buddy...</p>
+        <p className="text-gray-500 font-bold uppercase tracking-[0.3em] text-xs">Syncing PG Buddy...</p>
       </div>
     );
   }
@@ -213,21 +212,35 @@ const App: React.FC = () => {
       <footer className="bg-[#0c0c0c] mt-20 py-20 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-16">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-8">
+            <div className="flex items-center gap-3 mb-8">
               <img 
                 src="logo.png" 
-                alt="PG Buddy" 
-                className="h-8 w-auto" 
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://i.ibb.co/3ykXJzV/logo-placeholder.png';
-                }} 
+                alt="PG Buddy Logo" 
+                className="h-10 w-auto" 
+                onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
               />
               <h2 className="text-2xl font-bold text-[#ff8000]">PG Buddy</h2>
             </div>
-            <p className="text-gray-500 max-w-sm leading-relaxed mb-8">
+            <p className="text-gray-500 max-w-sm leading-relaxed mb-8 text-sm">
               Making PG hunting effortless for students and young professionals across India. 
               Verified listings, community-driven data.
             </p>
+            
+            {/* Download App Section */}
+            <div className="mt-10 p-6 bg-white/5 rounded-2xl border border-white/10 max-w-sm">
+              <h4 className="text-xs font-bold text-white mb-2 uppercase tracking-widest">download our app from the playstore</h4>
+              <p className="text-[11px] text-gray-500 mb-6 leading-relaxed">Experience faster search, instant alerts, and seamless bookings on the go.</p>
+              <button 
+                onClick={() => window.open(PLAY_STORE_URL, '_blank')}
+                className="flex items-center gap-3 transition-all hover:opacity-80 active:scale-95"
+              >
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
+                    alt="Get it on Google Play" 
+                    className="h-10 w-auto" 
+                />
+              </button>
+            </div>
           </div>
           <div>
             <h4 className="font-bold mb-8 text-sm uppercase tracking-widest text-white">Quick Links</h4>
@@ -248,8 +261,12 @@ const App: React.FC = () => {
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 mt-20 pt-8 border-t border-white/5 text-center">
-          <p className="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2024 <span className="text-[#ff8000]">PG Buddy</span> Technologies Pvt Ltd.</p>
+        
+        {/* Updated Footer Text */}
+        <div className="max-w-7xl mx-auto px-4 mt-20 pt-10 border-t border-white/5 text-center">
+          <p className="text-sm text-gray-500 tracking-wide lowercase">
+            scrolled this far? <span className="text-[#ff8000] font-medium italic">god bless the rebel in you</span>
+          </p>
         </div>
       </footer>
     </div>

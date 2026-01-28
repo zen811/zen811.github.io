@@ -15,11 +15,18 @@ const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
   'Jayanagar': { lat: 12.9308, lng: 77.5838 },
 };
 
+/**
+ * Transforms a standard Google Drive share link into a direct image stream URL.
+ * Appending =w1000 ensures it is served as an image and bypasses mobile browser preview blocks.
+ */
 const transformDriveUrl = (url: string): string => {
   if (!url) return '';
+  // Match file ID from various Drive URL formats
   const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
   if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
-    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+    const fileId = driveMatch[1];
+    // This endpoint is the most reliable for cross-device image embedding
+    return `https://lh3.googleusercontent.com/d/${fileId}=w1000`;
   }
   return url;
 };
@@ -49,15 +56,20 @@ export const fetchRooms = async (): Promise<Room[]> => {
 
       const verificationStatus = getValue(13);
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
-      const rawPhotos = String(getValue(10)).split(/[,|\s\n]+/).map(p => p.trim()).filter(p => p.length > 0);
+      
+      // Improved photo parsing logic
+      const rawPhotoString = String(getValue(10) || '');
+      const rawPhotos = rawPhotoString
+        .split(/[,\s\n|]+/)
+        .map(p => p.trim())
+        .filter(p => p.length > 5); // Basic sanity check for URL length
+        
       const transformedPhotos = rawPhotos.map(transformDriveUrl);
       const location = String(getValue(5) || 'Bangalore');
       
-      // Clean up flat type to avoid showing emails if the sheet columns shifted
-      let flatType = String(getValue(14) || 'Flat');
-      if (flatType.includes('@')) flatType = 'Verified PG';
+      let flatType = String(getValue(14) || 'Verified PG');
+      if (flatType.includes('@')) flatType = 'Premium PG';
 
-      // Assign mock coords
       let coords = undefined;
       for (const [key, value] of Object.entries(MOCK_COORDS)) {
         if (location.toLowerCase().includes(key.toLowerCase())) {
@@ -66,9 +78,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
         }
       }
 
-      // Ensure rating is a single decimal point number
-      const baseRating = 4.2 + (Math.random() * 0.7);
-      const rating = parseFloat(baseRating.toFixed(1));
+      const rating = parseFloat((4.2 + (Math.random() * 0.7)).toFixed(1));
 
       return {
         id: `room-${index}-${Date.now()}`,
@@ -81,13 +91,13 @@ export const fetchRooms = async (): Promise<Room[]> => {
         description: String(getValue(7) || 'Contact owner for more details.'),
         occupancyType: (getValue(8) as any) || 'Single',
         genderPreference: (getValue(9) as any) || 'Unisex',
-        flatType: flatType, 
+        flatType, 
         photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
-        rating: rating,
+        rating,
         reviewsCount: Math.floor(Math.random() * 50) + 10,
-        isVerified: isVerified,
+        isVerified,
         coordinates: coords,
         featured: index % 5 === 0
       };

@@ -2,19 +2,23 @@
 import React from 'react';
 import { Room } from '../types';
 
-// Placeholder URL for user enquiry form
-const ENQUIRY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScP_placeholder_enquiry_form/viewform';
-
 interface RoomDetailsProps {
   room: Room;
   onBack: () => void;
 }
 
 const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
-  const handleEnquiry = () => {
-    // Redirecting user to Google Form to take basic info
-    window.open(`${ENQUIRY_FORM_URL}?usp=pp_url&entry.123456789=${encodeURIComponent(room.name)}`, '_blank');
+  const handleViewLocation = () => {
+    if (room.locationLink && room.locationLink !== '#') {
+      window.open(room.locationLink, '_blank');
+    } else {
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(room.name + ' ' + room.location)}`, '_blank');
+    }
   };
+
+  const galleryImages = room.photos.length > 0 ? room.photos : [
+    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'
+  ];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -58,25 +62,53 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
         </div>
       </div>
 
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[500px] mb-10 overflow-hidden rounded-3xl shadow-2xl">
-        <div className="col-span-2 row-span-2 overflow-hidden group">
-          <img src={room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Main" />
+      {/* Gallery Grid with lazy loading and optimization */}
+      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[300px] md:h-[500px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5">
+        <div className="col-span-2 row-span-2 overflow-hidden group relative">
+          <img 
+            src={galleryImages[0]} 
+            loading="eager" 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Main" 
+            onError={(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'}
+          />
         </div>
         <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img src={room.photos[1] || room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Gallery 1" />
+          <img 
+            src={galleryImages[1] || galleryImages[0]} 
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Gallery 1" 
+          />
         </div>
         <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img src={room.photos[2] || room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Gallery 2" />
+          <img 
+            src={galleryImages[2] || galleryImages[0]} 
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Gallery 2" 
+          />
         </div>
         <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img src={room.photos[3] || room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Gallery 3" />
+          <img 
+            src={galleryImages[3] || galleryImages[0]} 
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Gallery 3" 
+          />
         </div>
         <div className="col-span-1 row-span-1 relative overflow-hidden group cursor-pointer">
-          <img src={room.photos[4] || room.photos[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="Gallery 4" />
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-            <span className="text-white font-bold text-lg">+{Math.max(0, room.photos.length - 4)} photos</span>
-          </div>
+          <img 
+            src={galleryImages[4] || galleryImages[0]} 
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Gallery 4" 
+          />
+          {galleryImages.length > 4 && (
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+              <span className="text-white font-bold text-lg">+{galleryImages.length - 4} photos</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -128,7 +160,6 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
           </section>
         </div>
 
-        {/* Sticky Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
@@ -143,11 +174,11 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
 
               <div className="space-y-3">
                 <button 
-                  onClick={handleEnquiry}
+                  onClick={handleViewLocation}
                   className="w-full bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/20 flex items-center justify-center gap-2 transform active:scale-95"
                 >
-                  <span className="material-symbols-outlined text-lg">contact_mail</span>
-                  CHECK AVAILABILITY
+                  <span className="material-symbols-outlined text-lg">map</span>
+                  VIEW LOCATION
                 </button>
                 <a href={`tel:${room.phoneNumber}`} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-lg">call</span>
@@ -155,7 +186,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
                 </a>
               </div>
               <p className="text-[10px] text-gray-500 mt-6 text-center leading-relaxed">
-                By clicking "Check Availability", you will be redirected to a contact form to provide your details.
+                By clicking "View Location", you will be redirected to Google Maps or the specified location link for this property.
               </p>
             </div>
           </div>
