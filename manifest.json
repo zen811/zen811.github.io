@@ -1,0 +1,22 @@
+
+{
+  "name": "PG Buddy",
+  "short_name": "PGBuddy",
+  "start_url": "/#/",
+  "display": "standalone",
+  "background_color": "#181410",
+  "theme_color": "#ff8000",
+  "description": "Premium Room and PG Listing Platform",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

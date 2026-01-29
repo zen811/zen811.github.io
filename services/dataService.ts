@@ -15,14 +15,16 @@ const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
 };
 
 /**
- * Optimizes Google Drive URLs for direct image streaming.
+ * Robustly transforms Google Drive links to direct image streams.
+ * Using =s0 ensures the original quality is fetched without complex cropping logic 
+ * that sometimes fails on specific Drive configurations.
  */
 const transformDriveUrl = (url: string): string => {
   if (!url) return '';
   const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
   if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
     const fileId = driveMatch[1];
-    return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
+    return `https://lh3.googleusercontent.com/d/${fileId}=s1600`;
   }
   return url;
 };
@@ -54,6 +56,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
       
       const rawPhotoString = String(getValue(10) || '');
+      // Split by common delimiters found in form-to-sheet data
       const rawPhotos = rawPhotoString
         .split(/[,\s\n|]+/)
         .map(p => p.trim())
@@ -74,7 +77,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
       }
 
       return {
-        id: `pg-${index}`, // Deterministic ID for stable URL routing
+        id: `pg-${index}`,
         name: String(getValue(1) || 'Premium Accommodation'),
         ownerName: String(getValue(2) || 'Verified Partner'),
         phoneNumber: String(getValue(3) || 'N/A'),
@@ -85,7 +88,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
         occupancyType: (getValue(8) as any) || 'Single',
         genderPreference: (getValue(9) as any) || 'Unisex',
         flatType, 
-        photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
+        photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200'],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
         rating: parseFloat((4.2 + (Math.random() * 0.7)).toFixed(1)),

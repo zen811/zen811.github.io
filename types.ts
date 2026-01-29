@@ -25,7 +25,6 @@ export interface Room {
   distance?: number; // Distance in km from user
 }
 
-// Added missing User interface to fix "Module '"../types"' has no exported member 'User'" error
 export interface User {
   name: string;
   phoneNumber: string;
@@ -41,4 +40,4 @@ export interface FilterState {
   nearMe: boolean;
 }
 
-export type View = 'home' | 'listings' | 'details' | 'help' | 'contact' | 'terms';
+export type View = 'home' | 'listings' | 'details' | 'help' | 'contact' | 'terms' | 'saved';

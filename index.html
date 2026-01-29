@@ -3,9 +3,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>PG Buddy | Premium Room Listings</title>
     <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#181410">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -43,19 +49,25 @@
             color: white;
             scrollbar-width: thin;
             scrollbar-color: #ff8000 #1e1e1e;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
+        input, textarea {
+            user-select: text;
+        }
+        /* Mobile Optimized Scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 4px;
+            height: 4px;
         }
         ::-webkit-scrollbar-track {
             background: #1e1e1e;
         }
         ::-webkit-scrollbar-thumb {
             background-color: #ff8000;
-            border-radius: 20px;
+            border-radius: 10px;
         }
 
-        /* Custom Range Slider Styles */
         input[type='range']::-webkit-slider-runnable-track {
             background: #2a2a2a;
             height: 6px;
@@ -64,14 +76,13 @@
         input[type='range']::-webkit-slider-thumb {
             margin-top: -6px;
         }
-        .price-slider-fill {
-            position: absolute;
-            height: 6px;
-            background: #ff8000;
-            border-radius: 3px;
-            pointer-events: none;
-            top: 50%;
-            transform: translateY(-50%);
+        
+        @keyframes toast-in {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-toast {
+            animation: toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
     </style>
 <script type="importmap">
@@ -84,7 +95,7 @@
 }
 </script>
 </head>
-<body class="dark font-sans antialiased">
+<body class="dark font-sans antialiased overflow-x-hidden">
     <div id="root"></div>
 </body>
 </html>

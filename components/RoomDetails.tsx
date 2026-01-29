@@ -5,9 +5,15 @@ import { Room } from '../types';
 interface RoomDetailsProps {
   room: Room;
   onBack: () => void;
+  onExpandImage: (url: string) => void;
+  onSave: () => void;
+  onShare: () => void;
+  isSaved: boolean;
 }
 
-const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
+const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, onSave, onShare, isSaved }) => {
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675&q=80';
+
   const handleViewLocation = () => {
     if (room.locationLink && room.locationLink !== '#') {
       window.open(room.locationLink, '_blank');
@@ -16,188 +22,165 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
     }
   };
 
-  const galleryImages = room.photos.length > 0 ? room.photos : [
-    'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'
-  ];
+  const galleryImages = room.photos.length > 0 ? room.photos : [FALLBACK_IMAGE];
 
   const renderGallery = () => {
-    // SINGLE IMAGE LAYOUT
     if (galleryImages.length === 1) {
       return (
-        <div className="w-full h-[300px] md:h-[600px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5 border border-white/10 relative group">
+        <div 
+          onClick={() => onExpandImage(galleryImages[0])}
+          className="w-full aspect-video mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 relative group cursor-zoom-in"
+        >
           <img 
             src={galleryImages[0]} 
-            loading="eager" 
-            fetchPriority="high"
-            decoding="async"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
             alt="Room Interior" 
-            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'; }}
+            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
         </div>
       );
     }
 
-    // MULTI IMAGE GRID (2+ images)
     return (
-      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[300px] md:h-[500px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5 border border-white/10">
-        <div className="col-span-2 row-span-2 overflow-hidden group relative">
+      <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-5 mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10">
+        <div 
+          onClick={() => onExpandImage(galleryImages[0])}
+          className="col-span-2 row-span-1 md:row-span-2 aspect-video md:aspect-auto overflow-hidden group relative cursor-zoom-in"
+        >
           <img 
             src={galleryImages[0]} 
-            loading="eager" 
-            fetchPriority="high"
-            decoding="async"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000" 
             alt="Main View" 
-            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'; }}
+            onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
           />
         </div>
         
         {galleryImages.slice(1, 5).map((img, idx) => (
-          <div key={idx} className={`col-span-1 row-span-1 overflow-hidden group relative ${idx === 3 ? 'cursor-pointer' : ''}`}>
+          <div 
+            key={idx} 
+            onClick={() => onExpandImage(img)}
+            className="col-span-1 aspect-video md:aspect-auto overflow-hidden group relative cursor-zoom-in"
+          >
             <img 
               src={img} 
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+              className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000" 
               alt={`Gallery ${idx + 1}`} 
+              onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
             />
             {idx === 3 && galleryImages.length > 5 && (
-              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center pointer-events-none">
-                <span className="text-white font-bold text-lg">+{galleryImages.length - 4} photos</span>
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center">
+                <span className="text-white font-black text-xl md:text-2xl">+{galleryImages.length - 4}</span>
+                <span className="text-gray-400 text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1">Photos</span>
               </div>
             )}
           </div>
-        ))}
-
-        {galleryImages.length < 5 && Array.from({ length: 5 - galleryImages.length }).map((_, i) => (
-           <div key={`empty-${i}`} className="bg-white/5 animate-pulse col-span-1 row-span-1 hidden md:block"></div>
         ))}
       </div>
     );
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-        <div>
+    <div className="max-w-7xl mx-auto px-5 py-6 md:px-6 md:py-8 animate-in fade-in slide-in-from-bottom-8 duration-700 pb-32">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 md:gap-8 mb-8 md:mb-12">
+        <div className="flex-grow">
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-500 hover:text-primary text-sm font-medium mb-4"
+            className="flex items-center gap-2 text-gray-500 hover:text-primary text-[9px] font-black uppercase tracking-[0.2em] mb-4 md:mb-6 transition-all group"
           >
-            <span className="material-symbols-outlined text-sm">arrow_back</span> Back to listings
+            <span className="material-symbols-outlined text-[14px] transition-transform group-hover:-translate-x-1">arrow_back</span> 
+            Back to listings
           </button>
-          <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl md:text-4xl font-bold">{room.name}</h1>
-            <span className="bg-white/10 text-white text-xs font-bold px-2 py-1 rounded-lg border border-white/10 uppercase">
+          
+          <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4">
+            <h1 className="text-2xl md:text-5xl font-black tracking-tighter leading-tight">{room.name}</h1>
+            <span className="bg-primary/10 text-primary text-[8px] md:text-[9px] font-black px-3 py-1.5 rounded-lg border border-primary/20 uppercase tracking-[0.1em]">
               {room.flatType}
             </span>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="flex items-center gap-1 text-primary font-semibold bg-primary/10 px-2 py-1 rounded">
-              <span className="material-symbols-outlined filled text-sm">star</span> {room.rating.toFixed(1)} ({room.reviewsCount} reviews)
+          
+          <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs">
+            <span className="flex items-center gap-1.5 text-primary font-black">
+              <span className="material-symbols-outlined filled text-base">star</span> {room.rating.toFixed(1)} 
+              <span className="text-gray-500 font-bold ml-1">({room.reviewsCount})</span>
             </span>
-            <span className="flex items-center gap-1 text-gray-400">
-              <span className="material-symbols-outlined text-sm">location_on</span> {room.location}
-            </span>
-            <span className={`flex items-center gap-1 font-medium px-2 py-1 rounded ${
-              room.genderPreference === 'Male' ? 'text-blue-400 bg-blue-400/10' : 
-              room.genderPreference === 'Female' ? 'text-pink-400 bg-pink-400/10' : 
-              'text-green-400 bg-green-400/10'
-            }`}>
-              <span className="material-symbols-outlined text-sm">group</span> {room.genderPreference} Only
+            <span className="flex items-center gap-1.5 text-gray-400 font-bold hover:text-primary transition-colors cursor-pointer" onClick={handleViewLocation}>
+              <span className="material-symbols-outlined text-base text-primary">location_on</span> 
+              <span className="line-clamp-1 max-w-[200px] md:max-w-none">{room.location}</span>
             </span>
           </div>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-sm font-semibold">
-            <span className="material-symbols-outlined text-lg">share</span> Share
+        
+        <div className="flex gap-2.5">
+          <button 
+            onClick={onShare}
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all group"
+          >
+            <span className="material-symbols-outlined text-lg">share</span>
+            <span className="text-[10px] font-black uppercase tracking-widest md:hidden">Share</span>
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all text-sm font-semibold">
-            <span className="material-symbols-outlined text-lg">favorite</span> Save
+          <button 
+            onClick={onSave}
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3.5 border rounded-xl transition-all group ${isSaved ? 'bg-primary/10 border-primary text-primary' : 'bg-white/5 border-white/10 text-white'}`}
+          >
+            <span className={`material-symbols-outlined text-lg ${isSaved ? 'filled' : ''}`}>favorite</span>
+            <span className="text-[10px] font-black uppercase tracking-widest md:hidden">{isSaved ? 'Saved' : 'Save'}</span>
           </button>
         </div>
       </div>
 
       {renderGallery()}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        <div className="lg:col-span-2 space-y-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 md:gap-16">
+        <div className="lg:col-span-2 space-y-12 md:space-y-16">
           <section>
-            <h3 className="text-2xl font-bold mb-6">About this {room.flatType}</h3>
-            <div className="prose prose-invert max-w-none text-gray-400 leading-relaxed">
-              <p>{room.description}</p>
-              <div className="mt-6 flex flex-wrap gap-4">
-                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
-                    <span className="material-symbols-outlined text-primary mb-1">apartment</span>
-                    <span className="text-[10px] text-gray-500 uppercase font-bold">Flat Type</span>
-                    <span className="text-sm font-bold text-white uppercase">{room.flatType}</span>
-                 </div>
-                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
-                    <span className="material-symbols-outlined text-primary mb-1">group</span>
-                    <span className="text-[10px] text-gray-500 uppercase font-bold">Occupancy</span>
-                    <span className="text-sm font-bold text-white">{room.occupancyType} Sharing</span>
-                 </div>
+            <h3 className="text-xl md:text-2xl font-black mb-6 md:mb-8 tracking-tight">Property Details</h3>
+            <div className="bg-[#1e1e1e] p-6 md:p-8 rounded-3xl border border-white/5 shadow-xl">
+              <p className="text-gray-400 leading-relaxed font-medium text-sm md:text-base mb-8 md:mb-10 whitespace-pre-line">{room.description}</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                 {[
+                   { label: 'Type', val: room.flatType, icon: 'apartment' },
+                   { label: 'Occupancy', val: room.occupancyType, icon: 'group' },
+                   { label: 'Rating', val: room.rating, icon: 'stars' },
+                   { label: 'Trusted', val: room.isVerified ? 'Verified' : 'Unverified', icon: 'verified_user' }
+                 ].map((item, i) => (
+                   <div key={i} className="bg-[#181410] p-3 md:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
+                      <span className="material-symbols-outlined text-primary mb-1 text-xl md:text-2xl">{item.icon}</span>
+                      <span className="text-[7px] md:text-[8px] text-gray-500 uppercase font-black tracking-widest mb-1">{item.label}</span>
+                      <span className="text-[10px] md:text-xs font-black text-white">{item.val}</span>
+                   </div>
+                 ))}
               </div>
-              <p className="mt-8">
-                This property is managed by <strong>{room.ownerName}</strong>. 
-                For general enquiries, call at <span className="text-primary font-semibold">{room.phoneNumber}</span>.
-              </p>
-            </div>
-          </section>
-
-          <hr className="border-white/5" />
-
-          <section>
-            <h3 className="text-2xl font-bold mb-8">Facilities & Amenities</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-              {room.amenities.map(item => (
-                <div key={item} className="flex items-center gap-4 group">
-                  <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-primary/10 transition-all border border-white/5 group-hover:border-primary/20">
-                    <span className="material-symbols-outlined text-primary">
-                      {item.toLowerCase().includes('wi-fi') ? 'wifi' : 
-                       item.toLowerCase().includes('ac') ? 'ac_unit' : 
-                       item.toLowerCase().includes('meal') ? 'restaurant' : 
-                       item.toLowerCase().includes('laundry') ? 'local_laundry_service' : 
-                       item.toLowerCase().includes('backup') ? 'bolt' : 'task_alt'}
-                    </span>
-                  </div>
-                  <span className="text-gray-300 font-medium">{item}</span>
-                </div>
-              ))}
             </div>
           </section>
         </div>
 
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
-            <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
-              
-              <div className="flex justify-between items-start mb-8">
-                <div>
-                  <p className="text-4xl font-black text-primary">₹{room.price.toLocaleString()}<span className="text-sm font-normal text-gray-500"> /mo</span></p>
-                  <p className="text-xs text-green-500 font-bold mt-2 tracking-wide uppercase">All inclusive utilities</p>
+            <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-3xl">
+              <div className="mb-6 md:mb-8 relative z-10">
+                <span className="text-[8px] text-gray-500 uppercase font-black tracking-[0.3em] block mb-1">Monthly Rent</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl md:text-5xl font-black text-white tracking-tighter">₹{room.price.toLocaleString()}</span>
+                  <span className="text-gray-500 font-black text-[8px] uppercase tracking-widest">/ Mo</span>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-10">
                 <button 
                   onClick={handleViewLocation}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 transform active:scale-95"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em]"
                 >
-                  <span className="material-symbols-outlined text-lg">map</span>
-                  VIEW LOCATION
+                  <span className="material-symbols-outlined text-lg">explore</span>
+                  Get Directions
                 </button>
-                <a href={`tel:${room.phoneNumber}`} className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2">
-                  <span className="material-symbols-outlined text-lg">call</span>
-                  CALL MANAGER
+                <a 
+                  href={`tel:${room.phoneNumber}`} 
+                  className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em]"
+                >
+                  <span className="material-symbols-outlined text-lg">contact_phone</span>
+                  Call Owner
                 </a>
               </div>
-              <p className="text-[10px] text-gray-500 mt-6 text-center leading-relaxed">
-                By clicking "View Location", you will be redirected to Google Maps or the specified location link for this property.
-              </p>
             </div>
           </div>
         </div>
