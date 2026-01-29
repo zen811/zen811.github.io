@@ -10,6 +10,7 @@ import HelpCentre from './components/HelpCentre';
 import ContactUs from './components/ContactUs';
 import TermsOfService from './components/TermsOfService';
 import LandingPage from './components/LandingPage';
+import Footer from './components/Footer';
 
 const LIST_PROPERTY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfnlEk8iCcgoU9uCJzbQ819ymUQTAQTIuoKpUfzfSucov0hTg/viewform?usp=sharing'; 
 const ENQUIRY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScGf72h7DSjeSOFjR-f8J3ww8FfeHo0rUwKexeSE9-pPJarxQ/viewform?usp=publish-editor';
@@ -50,7 +51,6 @@ const App: React.FC = () => {
     localStorage.setItem('pgbuddy_saved_rooms', JSON.stringify(savedRoomIds));
   }, [savedRoomIds]);
 
-  // Routing Logic
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash || '#/';
@@ -106,7 +106,10 @@ const App: React.FC = () => {
     let result = rooms.filter(room => {
       const matchesPrice = room.price <= filters.priceRange[1];
       const matchesType = filters.roomTypes.length === 0 || filters.roomTypes.includes(room.occupancyType);
-      const matchesGender = filters.gender.length === 0 || filters.gender.includes(room.genderPreference) || room.genderPreference === 'Unisex';
+      
+      const matchesGender = filters.gender.length === 0 || 
+        filters.gender.includes(room.genderPreference) || 
+        room.genderPreference === 'Unisex';
       
       const q = filters.searchQuery.toLowerCase();
       const matchesSearch = q === '' || 
@@ -256,11 +259,26 @@ const App: React.FC = () => {
 
       {expandedImage && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md" onClick={() => setExpandedImage(null)}>
-          <img src={expandedImage} className="max-w-full max-h-full object-contain rounded-2xl" onClick={(e) => e.stopPropagation()} />
+          <div className="relative w-full max-w-6xl aspect-video overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+            <img 
+              src={expandedImage} 
+              className="w-full h-full object-cover object-center" 
+              onClick={(e) => e.stopPropagation()} 
+              alt="Expanded view"
+            />
+            <button 
+              onClick={() => setExpandedImage(null)}
+              className="absolute top-4 right-4 bg-black/50 backdrop-blur-md text-white w-10 h-10 rounded-full flex items-center justify-center hover:bg-primary transition-colors"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
         </div>
       )}
 
       <main className="flex-grow">{renderContent()}</main>
+      
+      <Footer />
     </div>
   );
 };
