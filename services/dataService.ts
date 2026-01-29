@@ -5,7 +5,6 @@ const SHEET_ID = '1bJbWy_tJDTFStTDDKc6MAkeAIEOQhicGyS4t2o16UD0';
 const GID = '1313399102';
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${GID}`;
 
-// Mock coordinates for demo proximity
 const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
   'Koramangala': { lat: 12.9352, lng: 77.6245 },
   'HSR Layout': { lat: 12.9121, lng: 77.6446 },
@@ -16,17 +15,14 @@ const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
 };
 
 /**
- * Transforms a standard Google Drive share link into a direct image stream URL.
- * Appending =w1000 ensures it is served as an image and bypasses mobile browser preview blocks.
+ * Optimizes Google Drive URLs for direct image streaming.
  */
 const transformDriveUrl = (url: string): string => {
   if (!url) return '';
-  // Match file ID from various Drive URL formats
   const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
   if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
     const fileId = driveMatch[1];
-    // This endpoint is the most reliable for cross-device image embedding
-    return `https://lh3.googleusercontent.com/d/${fileId}=w1000`;
+    return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
   }
   return url;
 };
@@ -57,12 +53,11 @@ export const fetchRooms = async (): Promise<Room[]> => {
       const verificationStatus = getValue(13);
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
       
-      // Improved photo parsing logic
       const rawPhotoString = String(getValue(10) || '');
       const rawPhotos = rawPhotoString
         .split(/[,\s\n|]+/)
         .map(p => p.trim())
-        .filter(p => p.length > 5); // Basic sanity check for URL length
+        .filter(p => p.startsWith('http'));
         
       const transformedPhotos = rawPhotos.map(transformDriveUrl);
       const location = String(getValue(5) || 'Bangalore');
@@ -78,10 +73,8 @@ export const fetchRooms = async (): Promise<Room[]> => {
         }
       }
 
-      const rating = parseFloat((4.2 + (Math.random() * 0.7)).toFixed(1));
-
       return {
-        id: `room-${index}-${Date.now()}`,
+        id: `pg-${index}`, // Deterministic ID for stable URL routing
         name: String(getValue(1) || 'Premium Accommodation'),
         ownerName: String(getValue(2) || 'Verified Partner'),
         phoneNumber: String(getValue(3) || 'N/A'),
@@ -95,7 +88,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
         photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
-        rating,
+        rating: parseFloat((4.2 + (Math.random() * 0.7)).toFixed(1)),
         reviewsCount: Math.floor(Math.random() * 50) + 10,
         isVerified,
         coordinates: coords,

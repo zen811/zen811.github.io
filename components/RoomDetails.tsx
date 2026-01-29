@@ -20,13 +20,71 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
     'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'
   ];
 
+  const renderGallery = () => {
+    // SINGLE IMAGE LAYOUT
+    if (galleryImages.length === 1) {
+      return (
+        <div className="w-full h-[300px] md:h-[600px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5 border border-white/10 relative group">
+          <img 
+            src={galleryImages[0]} 
+            loading="eager" 
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" 
+            alt="Room Interior" 
+            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+        </div>
+      );
+    }
+
+    // MULTI IMAGE GRID (2+ images)
+    return (
+      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[300px] md:h-[500px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5 border border-white/10">
+        <div className="col-span-2 row-span-2 overflow-hidden group relative">
+          <img 
+            src={galleryImages[0]} 
+            loading="eager" 
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+            alt="Main View" 
+            onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'; }}
+          />
+        </div>
+        
+        {galleryImages.slice(1, 5).map((img, idx) => (
+          <div key={idx} className={`col-span-1 row-span-1 overflow-hidden group relative ${idx === 3 ? 'cursor-pointer' : ''}`}>
+            <img 
+              src={img} 
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+              alt={`Gallery ${idx + 1}`} 
+            />
+            {idx === 3 && galleryImages.length > 5 && (
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center pointer-events-none">
+                <span className="text-white font-bold text-lg">+{galleryImages.length - 4} photos</span>
+              </div>
+            )}
+          </div>
+        ))}
+
+        {galleryImages.length < 5 && Array.from({ length: 5 - galleryImages.length }).map((_, i) => (
+           <div key={`empty-${i}`} className="bg-white/5 animate-pulse col-span-1 row-span-1 hidden md:block"></div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-500 hover:text-[#ff8000] text-sm font-medium mb-4"
+            className="flex items-center gap-2 text-gray-500 hover:text-primary text-sm font-medium mb-4"
           >
             <span className="material-symbols-outlined text-sm">arrow_back</span> Back to listings
           </button>
@@ -37,7 +95,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="flex items-center gap-1 text-[#ff8000] font-semibold bg-[#ff8000]/10 px-2 py-1 rounded">
+            <span className="flex items-center gap-1 text-primary font-semibold bg-primary/10 px-2 py-1 rounded">
               <span className="material-symbols-outlined filled text-sm">star</span> {room.rating.toFixed(1)} ({room.reviewsCount} reviews)
             </span>
             <span className="flex items-center gap-1 text-gray-400">
@@ -62,55 +120,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
         </div>
       </div>
 
-      {/* Gallery Grid with lazy loading and optimization */}
-      <div className="grid grid-cols-4 grid-rows-2 gap-3 h-[300px] md:h-[500px] mb-10 overflow-hidden rounded-3xl shadow-2xl bg-white/5">
-        <div className="col-span-2 row-span-2 overflow-hidden group relative">
-          <img 
-            src={galleryImages[0]} 
-            loading="eager" 
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            alt="Main" 
-            onError={(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'}
-          />
-        </div>
-        <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img 
-            src={galleryImages[1] || galleryImages[0]} 
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            alt="Gallery 1" 
-          />
-        </div>
-        <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img 
-            src={galleryImages[2] || galleryImages[0]} 
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            alt="Gallery 2" 
-          />
-        </div>
-        <div className="col-span-1 row-span-1 overflow-hidden group">
-          <img 
-            src={galleryImages[3] || galleryImages[0]} 
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            alt="Gallery 3" 
-          />
-        </div>
-        <div className="col-span-1 row-span-1 relative overflow-hidden group cursor-pointer">
-          <img 
-            src={galleryImages[4] || galleryImages[0]} 
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-            alt="Gallery 4" 
-          />
-          {galleryImages.length > 4 && (
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-              <span className="text-white font-bold text-lg">+{galleryImages.length - 4} photos</span>
-            </div>
-          )}
-        </div>
-      </div>
+      {renderGallery()}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
         <div className="lg:col-span-2 space-y-12">
@@ -120,19 +130,19 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               <p>{room.description}</p>
               <div className="mt-6 flex flex-wrap gap-4">
                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
-                    <span className="material-symbols-outlined text-[#ff8000] mb-1">apartment</span>
+                    <span className="material-symbols-outlined text-primary mb-1">apartment</span>
                     <span className="text-[10px] text-gray-500 uppercase font-bold">Flat Type</span>
                     <span className="text-sm font-bold text-white uppercase">{room.flatType}</span>
                  </div>
                  <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center justify-center min-w-[100px]">
-                    <span className="material-symbols-outlined text-[#ff8000] mb-1">group</span>
+                    <span className="material-symbols-outlined text-primary mb-1">group</span>
                     <span className="text-[10px] text-gray-500 uppercase font-bold">Occupancy</span>
                     <span className="text-sm font-bold text-white">{room.occupancyType} Sharing</span>
                  </div>
               </div>
               <p className="mt-8">
                 This property is managed by <strong>{room.ownerName}</strong>. 
-                For general enquiries, call at <span className="text-[#ff8000] font-semibold">{room.phoneNumber}</span>.
+                For general enquiries, call at <span className="text-primary font-semibold">{room.phoneNumber}</span>.
               </p>
             </div>
           </section>
@@ -144,8 +154,8 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {room.amenities.map(item => (
                 <div key={item} className="flex items-center gap-4 group">
-                  <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-[#ff8000]/10 transition-all border border-white/5 group-hover:border-[#ff8000]/20">
-                    <span className="material-symbols-outlined text-[#ff8000]">
+                  <div className="p-3 bg-white/5 rounded-2xl group-hover:bg-primary/10 transition-all border border-white/5 group-hover:border-primary/20">
+                    <span className="material-symbols-outlined text-primary">
                       {item.toLowerCase().includes('wi-fi') ? 'wifi' : 
                        item.toLowerCase().includes('ac') ? 'ac_unit' : 
                        item.toLowerCase().includes('meal') ? 'restaurant' : 
@@ -163,11 +173,11 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
             <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-[#ff8000]"></div>
+              <div className="absolute top-0 left-0 w-1 h-full bg-primary"></div>
               
               <div className="flex justify-between items-start mb-8">
                 <div>
-                  <p className="text-4xl font-black text-[#ff8000]">₹{room.price.toLocaleString()}<span className="text-sm font-normal text-gray-500"> /mo</span></p>
+                  <p className="text-4xl font-black text-primary">₹{room.price.toLocaleString()}<span className="text-sm font-normal text-gray-500"> /mo</span></p>
                   <p className="text-xs text-green-500 font-bold mt-2 tracking-wide uppercase">All inclusive utilities</p>
                 </div>
               </div>
@@ -175,7 +185,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack }) => {
               <div className="space-y-3">
                 <button 
                   onClick={handleViewLocation}
-                  className="w-full bg-[#ff8000] hover:bg-[#ff8000]/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-[#ff8000]/20 flex items-center justify-center gap-2 transform active:scale-95"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-2xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 transform active:scale-95"
                 >
                   <span className="material-symbols-outlined text-lg">map</span>
                   VIEW LOCATION
