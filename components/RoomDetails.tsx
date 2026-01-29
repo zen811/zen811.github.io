@@ -12,7 +12,7 @@ interface RoomDetailsProps {
 }
 
 const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, onSave, onShare, isSaved }) => {
-  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675&q=80';
+  const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675';
 
   const handleViewLocation = () => {
     if (room.locationLink && room.locationLink !== '#') {
@@ -29,7 +29,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
       return (
         <div 
           onClick={() => onExpandImage(galleryImages[0])}
-          className="w-full aspect-video mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 relative group cursor-zoom-in"
+          className="w-full aspect-[16/9] mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 relative group cursor-zoom-in"
         >
           <img 
             src={galleryImages[0]} 
@@ -45,7 +45,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
       <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-5 mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10">
         <div 
           onClick={() => onExpandImage(galleryImages[0])}
-          className="col-span-2 row-span-1 md:row-span-2 aspect-video overflow-hidden group relative cursor-zoom-in"
+          className="col-span-2 row-span-1 md:row-span-2 aspect-[16/9] overflow-hidden group relative cursor-zoom-in"
         >
           <img 
             src={galleryImages[0]} 
@@ -59,7 +59,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
           <div 
             key={idx} 
             onClick={() => onExpandImage(img)}
-            className="col-span-1 aspect-video overflow-hidden group relative cursor-zoom-in"
+            className="col-span-1 aspect-[16/9] overflow-hidden group relative cursor-zoom-in"
           >
             <img 
               src={img} 
