@@ -15,18 +15,21 @@ const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
 };
 
 /**
- * Robustly transforms Google Drive links to direct image streams.
- * Using =s0 ensures the original quality is fetched without complex cropping logic 
- * that sometimes fails on specific Drive configurations.
+ * Enhanced Drive transformation for Mobile browsers (Safari/Chrome Mobile).
+ * Uses the thumbnail endpoint which is highly compatible with mobile browsers
+ * and handles permission-edge-cases better than the direct export subdomains.
  */
 const transformDriveUrl = (url: string): string => {
-  if (!url) return '';
-  const driveMatch = url.match(/(?:id=|d\/|open\?id=)([\w-]+)/);
-  if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
+  if (!url || typeof url !== 'string') return '';
+  const trimmedUrl = url.trim();
+  const driveMatch = trimmedUrl.match(/(?:id=|d\/|open\?id=)([\w-]{25,})/);
+  
+  if (driveMatch && (trimmedUrl.includes('drive.google.com') || trimmedUrl.includes('docs.google.com'))) {
     const fileId = driveMatch[1];
-    return `https://lh3.googleusercontent.com/d/${fileId}=s1600`;
+    // sz=w1200 provides a high-quality 16:9 friendly resolution optimized for mobile loading
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
   }
-  return url;
+  return trimmedUrl;
 };
 
 export const fetchRooms = async (): Promise<Room[]> => {
@@ -56,15 +59,20 @@ export const fetchRooms = async (): Promise<Room[]> => {
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
       
       const rawPhotoString = String(getValue(10) || '');
-      // Split by common delimiters found in form-to-sheet data
       const rawPhotos = rawPhotoString
         .split(/[,\s\n|]+/)
         .map(p => p.trim())
-        .filter(p => p.startsWith('http'));
+        .filter(p => p.length > 5);
         
-      const transformedPhotos = rawPhotos.map(transformDriveUrl);
+      const transformedPhotos = rawPhotos.map(transformDriveUrl).filter(p => p !== '');
       const location = String(getValue(5) || 'Bangalore');
       
+      // Manual Ratings from Sheet: 
+      // User requested Column 17 (index 16) for Rating
+      // Defaulting Reviews Count to Column 16 (index 15)
+      const manualRating = getNum(16);
+      const manualReviews = getNum(15);
+
       let flatType = String(getValue(14) || 'Verified PG');
       if (flatType.includes('@')) flatType = 'Premium PG';
 
@@ -88,11 +96,11 @@ export const fetchRooms = async (): Promise<Room[]> => {
         occupancyType: (getValue(8) as any) || 'Single',
         genderPreference: (getValue(9) as any) || 'Unisex',
         flatType, 
-        photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200'],
+        photos: transformedPhotos.length > 0 ? transformedPhotos : ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675'],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
-        rating: parseFloat((4.2 + (Math.random() * 0.7)).toFixed(1)),
-        reviewsCount: Math.floor(Math.random() * 50) + 10,
+        rating: manualRating > 0 ? manualRating : 3.0, 
+        reviewsCount: manualReviews > 0 ? manualReviews : 15,
         isVerified,
         coordinates: coords,
         featured: index % 5 === 0

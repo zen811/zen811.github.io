@@ -45,7 +45,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
       <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-5 mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10">
         <div 
           onClick={() => onExpandImage(galleryImages[0])}
-          className="col-span-2 row-span-1 md:row-span-2 aspect-[16/9] overflow-hidden group relative cursor-zoom-in"
+          className="col-span-2 row-span-1 md:row-span-2 aspect-[16/9] overflow-hidden group relative cursor-zoom-in bg-black"
         >
           <img 
             src={galleryImages[0]} 
@@ -59,7 +59,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
           <div 
             key={idx} 
             onClick={() => onExpandImage(img)}
-            className="col-span-1 aspect-[16/9] overflow-hidden group relative cursor-zoom-in"
+            className="col-span-1 aspect-[16/9] overflow-hidden group relative cursor-zoom-in bg-black"
           >
             <img 
               src={img} 
@@ -67,8 +67,8 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
               alt={`Gallery ${idx + 1}`} 
               onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }}
             />
-            {idx === 3 && galleryImages.length > 5 && (
-              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none">
+            {idx === 3 && galleryImages.length > 4 && (
+              <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center pointer-events-none select-none">
                 <span className="text-white font-black text-xl md:text-2xl">+{galleryImages.length - 4}</span>
                 <span className="text-gray-400 text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1">Photos</span>
               </div>
@@ -140,7 +140,7 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
                  {[
                    { label: 'Type', val: room.flatType, icon: 'apartment' },
                    { label: 'Occupancy', val: room.occupancyType, icon: 'group' },
-                   { label: 'Rating', val: room.rating, icon: 'stars' },
+                   { label: 'Rating', val: room.rating.toFixed(1), icon: 'stars' },
                    { label: 'Trusted', val: room.isVerified ? 'Verified' : 'Unverified', icon: 'verified_user' }
                  ].map((item, i) => (
                    <div key={i} className="bg-[#181410] p-3 md:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
