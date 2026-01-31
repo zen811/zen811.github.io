@@ -17,6 +17,7 @@ export interface Room {
   rating: number;
   reviewsCount: number;
   isVerified: boolean;
+  isAvailable: boolean;
   featured?: boolean;
   coordinates?: {
     lat: number;

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const Footer: React.FC = () => {
@@ -11,8 +10,17 @@ const Footer: React.FC = () => {
           {/* Brand Column */}
           <div className="space-y-6">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 flex items-center justify-center bg-white/5 rounded-lg border border-white/5">
-                <span className="text-[10px] font-black text-primary">PB</span>
+              <div className="h-10 w-10 flex items-center justify-center bg-white/5 rounded-lg border border-white/5 relative overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="PG Buddy" 
+                  className="w-full h-full object-cover z-10"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-primary opacity-40">PB</span>
               </div>
               <h2 className="text-2xl font-black tracking-tighter text-white">PG Buddy</h2>
             </div>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface HeaderProps {
@@ -20,6 +19,15 @@ const Header: React.FC<HeaderProps> = ({ enquiryFormUrl, onNavigate }) => {
           onClick={() => window.location.hash = '#/'}
         >
           <div className="h-10 w-10 flex items-center justify-center overflow-hidden bg-white/5 rounded-lg border border-white/5 relative">
+            <img 
+              src="/logo.png" 
+              alt="PG Buddy Logo" 
+              className="w-full h-full object-cover z-10"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
+            />
             <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-primary z-0 opacity-40">PB</span>
           </div>
           <h2 className="text-xl md:text-2xl font-black tracking-tighter text-primary">PG Buddy</h2>

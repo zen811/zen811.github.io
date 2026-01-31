@@ -25,12 +25,19 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
   const galleryImages = room.photos.length > 0 ? room.photos : [FALLBACK_IMAGE];
 
   const renderGallery = () => {
+    const galleryClass = `w-full overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 relative ${!room.isAvailable ? 'grayscale opacity-75' : ''}`;
+    
     if (galleryImages.length === 1) {
       return (
         <div 
           onClick={() => onExpandImage(galleryImages[0])}
-          className="w-full aspect-[16/9] mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 relative group cursor-zoom-in"
+          className={`${galleryClass} aspect-[16/9] mb-8 md:mb-12 group cursor-zoom-in`}
         >
+          {!room.isAvailable && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+              <span className="bg-white text-black px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-widest shadow-2xl">Currently Fully Booked</span>
+            </div>
+          )}
           <img 
             src={galleryImages[0]} 
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000" 
@@ -42,11 +49,16 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
     }
 
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-5 mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10">
+      <div className={`grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-3 md:gap-5 mb-8 md:mb-12 overflow-hidden rounded-3xl shadow-2xl bg-[#181410] border border-white/10 ${!room.isAvailable ? 'grayscale opacity-75' : ''}`}>
         <div 
           onClick={() => onExpandImage(galleryImages[0])}
           className="col-span-2 row-span-1 md:row-span-2 aspect-[16/9] overflow-hidden group relative cursor-zoom-in bg-black"
         >
+          {!room.isAvailable && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+              <span className="bg-white text-black px-4 py-2 rounded-full font-black text-[10px] uppercase tracking-widest shadow-2xl">Unavailable</span>
+            </div>
+          )}
           <img 
             src={galleryImages[0]} 
             className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-1000" 
@@ -92,10 +104,15 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
           </button>
           
           <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-4">
-            <h1 className="text-2xl md:text-5xl font-black tracking-tighter leading-tight">{room.name}</h1>
+            <h1 className={`text-2xl md:text-5xl font-black tracking-tighter leading-tight ${!room.isAvailable ? 'text-gray-500' : ''}`}>{room.name}</h1>
             <span className="bg-primary/10 text-primary text-[8px] md:text-[9px] font-black px-3 py-1.5 rounded-lg border border-primary/20 uppercase tracking-[0.1em]">
               {room.flatType}
             </span>
+            {!room.isAvailable && (
+              <span className="bg-white text-black text-[8px] md:text-[9px] font-black px-3 py-1.5 rounded-lg uppercase tracking-[0.1em]">
+                Currently Full
+              </span>
+            )}
           </div>
           
           <div className="flex flex-wrap items-center gap-4 md:gap-6 text-xs">
@@ -135,16 +152,16 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
           <section>
             <h3 className="text-xl md:text-2xl font-black mb-6 md:mb-8 tracking-tight">Property Details</h3>
             <div className="bg-[#1e1e1e] p-6 md:p-8 rounded-3xl border border-white/5 shadow-xl">
-              <p className="text-gray-400 leading-relaxed font-medium text-sm md:text-base mb-8 md:mb-10 whitespace-pre-line">{room.description}</p>
+              <p className={`leading-relaxed font-medium text-sm md:text-base mb-8 md:mb-10 whitespace-pre-line ${!room.isAvailable ? 'text-gray-600' : 'text-gray-400'}`}>{room.description}</p>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
                  {[
                    { label: 'Type', val: room.flatType, icon: 'apartment' },
                    { label: 'Occupancy', val: room.occupancyType, icon: 'group' },
-                   { label: 'Rating', val: room.rating.toFixed(1), icon: 'stars' },
+                   { label: 'Status', val: room.isAvailable ? 'Available' : 'Full', icon: room.isAvailable ? 'event_available' : 'event_busy' },
                    { label: 'Trusted', val: room.isVerified ? 'Verified' : 'Unverified', icon: 'verified_user' }
                  ].map((item, i) => (
-                   <div key={i} className="bg-[#181410] p-3 md:p-4 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center">
-                      <span className="material-symbols-outlined text-primary mb-1 text-xl md:text-2xl">{item.icon}</span>
+                   <div key={i} className={`bg-[#181410] p-3 md:p-4 rounded-xl border flex flex-col items-center justify-center text-center ${!room.isAvailable ? 'border-white/5 opacity-50' : 'border-white/5'}`}>
+                      <span className={`material-symbols-outlined mb-1 text-xl md:text-2xl ${!room.isAvailable ? 'text-gray-500' : 'text-primary'}`}>{item.icon}</span>
                       <span className="text-[7px] md:text-[8px] text-gray-500 uppercase font-black tracking-widest mb-1">{item.label}</span>
                       <span className="text-[10px] md:text-xs font-black text-white">{item.val}</span>
                    </div>
@@ -156,11 +173,11 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
 
         <div className="lg:col-span-1">
           <div className="sticky top-24 space-y-6">
-            <div className="bg-[#1e1e1e] border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-3xl">
+            <div className={`bg-[#1e1e1e] border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden backdrop-blur-3xl ${!room.isAvailable ? 'grayscale' : ''}`}>
               <div className="mb-6 md:mb-8 relative z-10">
                 <span className="text-[8px] text-gray-500 uppercase font-black tracking-[0.3em] block mb-1">Monthly Rent</span>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl md:text-5xl font-black text-white tracking-tighter">₹{room.price.toLocaleString()}</span>
+                  <span className={`text-4xl md:text-5xl font-black tracking-tighter ${!room.isAvailable ? 'text-gray-500' : 'text-white'}`}>₹{room.price.toLocaleString()}</span>
                   <span className="text-gray-500 font-black text-[8px] uppercase tracking-widest">/ Mo</span>
                 </div>
               </div>
@@ -168,17 +185,22 @@ const RoomDetails: React.FC<RoomDetailsProps> = ({ room, onBack, onExpandImage, 
               <div className="space-y-3 relative z-10">
                 <button 
                   onClick={handleViewLocation}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-black py-4 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em]"
+                  className={`w-full font-black py-4 rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em] ${
+                    room.isAvailable ? 'bg-primary hover:bg-primary/90 text-white shadow-primary/20' : 'bg-white/5 text-gray-500 cursor-not-allowed shadow-none'
+                  }`}
                 >
                   <span className="material-symbols-outlined text-lg">explore</span>
                   Get Directions
                 </button>
                 <a 
-                  href={`tel:${room.phoneNumber}`} 
-                  className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10 font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em]"
+                  href={room.isAvailable ? `tel:${room.phoneNumber}` : '#'} 
+                  className={`w-full border font-black py-4 rounded-xl transition-all flex items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em] ${
+                    room.isAvailable ? 'bg-white/5 hover:bg-white/10 text-white border-white/10' : 'bg-transparent text-gray-600 border-white/5 cursor-not-allowed'
+                  }`}
+                  onClick={(e) => !room.isAvailable && e.preventDefault()}
                 >
                   <span className="material-symbols-outlined text-lg">contact_phone</span>
-                  Call Owner
+                  {room.isAvailable ? 'Call Owner' : 'Booking Closed'}
                 </a>
               </div>
             </div>

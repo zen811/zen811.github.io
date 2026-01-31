@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Room, FilterState, View } from './types';
 import { fetchRooms } from './services/dataService';
@@ -119,16 +118,37 @@ const App: React.FC = () => {
       return matchesPrice && matchesType && matchesGender && matchesSearch;
     });
 
+    // Distance calculation if nearMe is active
     if (filters.nearMe && userLocation) {
       result = result.map(room => ({
         ...room,
         distance: room.coordinates ? calculateDistance(userLocation.lat, userLocation.lng, room.coordinates.lat, room.coordinates.lng) : 999
       }));
-      result.sort((a, b) => (a.distance || 0) - (b.distance || 0));
     }
+
+    // Sort Logic: 1. Availability (Available first) 2. Distance (if applicable) 3. Original order
+    result.sort((a, b) => {
+      // Primary: Availability
+      if (a.isAvailable !== b.isAvailable) {
+        return a.isAvailable ? -1 : 1;
+      }
+      
+      // Secondary: Proximity (only if filter is active)
+      if (filters.nearMe && userLocation) {
+        return (a.distance || 999) - (b.distance || 999);
+      }
+
+      return 0;
+    });
 
     return result;
   }, [rooms, filters, userLocation]);
+
+  const featuredRooms = useMemo(() => {
+    const featured = rooms.filter(r => r.featured);
+    // Even featured rooms should show available ones first
+    return featured.sort((a, b) => (a.isAvailable === b.isAvailable ? 0 : a.isAvailable ? -1 : 1));
+  }, [rooms]);
 
   const savedRooms = useMemo(() => 
     rooms.filter(r => savedRoomIds.includes(r.id))
@@ -166,10 +186,28 @@ const App: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#181410] flex flex-col items-center justify-center text-white p-6">
-        <div className="h-16 w-16 mb-6 flex items-center justify-center bg-white/5 rounded-2xl border border-white/5 animate-pulse">
-          <span className="text-primary font-black">PB</span>
+        <div className="h-20 w-20 mb-6 flex items-center justify-center bg-white/5 rounded-2xl border border-white/5 animate-pulse relative overflow-hidden">
+          <img 
+            src="/logo.png" 
+            alt="PG Buddy" 
+            className="w-full h-full object-cover z-10"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-primary opacity-40">PB</span>
+        </div>
+        <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden mb-4">
+          <div className="h-full bg-primary animate-[loading_2s_ease-in-out_infinite]"></div>
         </div>
         <p className="text-gray-500 font-bold uppercase tracking-[0.2em] text-[10px]">Syncing Listings...</p>
+        <style>{`
+          @keyframes loading {
+            0% { width: 0%; transform: translateX(-100%); }
+            50% { width: 100%; transform: translateX(0); }
+            100% { width: 0%; transform: translateX(100%); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -185,7 +223,7 @@ const App: React.FC = () => {
               window.location.hash = '#/listings';
             }}
             onListProperty={() => window.open(LIST_PROPERTY_FORM_URL, '_blank')}
-            featuredRooms={rooms.filter(r => r.featured)}
+            featuredRooms={featuredRooms}
             onRoomClick={(room) => window.location.hash = `#/details/${room.id}`}
             onExpandImage={setExpandedImage}
           />

@@ -14,12 +14,24 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, onExpandImage }) => 
 
   return (
     <div 
-      className="bg-[#1e1e1e] border border-white/5 rounded-2xl overflow-hidden hover:border-primary/40 transition-all cursor-pointer group flex flex-col shadow-lg relative h-full"
+      className={`bg-[#1e1e1e] border rounded-2xl overflow-hidden transition-all cursor-pointer group flex flex-col shadow-lg relative h-full ${
+        room.isAvailable 
+          ? 'border-white/5 hover:border-primary/40' 
+          : 'border-white/10 grayscale opacity-80 cursor-default'
+      }`}
       onClick={() => onClick(room)}
     >
       {/* Strict 16:9 Image Container */}
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-black flex-shrink-0">
-        {room.featured && (
+        {!room.isAvailable && (
+          <div className="absolute inset-0 z-30 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
+            <div className="bg-white text-black px-3 py-1.5 rounded-md font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl">
+              Occupied
+            </div>
+          </div>
+        )}
+
+        {room.featured && room.isAvailable && (
           <div className="absolute top-2 left-2 z-20 bg-primary text-white text-[7px] font-black px-1.5 py-0.5 rounded shadow-lg uppercase tracking-widest">
             Featured
           </div>
@@ -46,16 +58,20 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, onExpandImage }) => 
               </span>
               <span className="text-[7px] font-bold text-gray-400 uppercase tracking-widest">/mo</span>
            </div>
-           <div className="bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded flex items-center gap-1 border border-white/5">
-              <span className="material-symbols-outlined text-primary text-[10px] filled">star</span>
-              <span className="text-[8px] font-black text-white">{room.rating.toFixed(1)}</span>
-           </div>
+           {room.isAvailable && (
+             <div className="bg-black/50 backdrop-blur-md px-1.5 py-0.5 rounded flex items-center gap-1 border border-white/5">
+                <span className="material-symbols-outlined text-primary text-[10px] filled">star</span>
+                <span className="text-[8px] font-black text-white">{room.rating.toFixed(1)}</span>
+             </div>
+           )}
         </div>
       </div>
       
       {/* Medium-profile Content Area */}
       <div className="p-3.5 flex flex-col flex-grow bg-[#1e1e1e]">
-        <h3 className="font-black text-white text-xs md:text-sm mb-1 group-hover:text-primary transition-colors line-clamp-1 tracking-tight">
+        <h3 className={`font-black text-xs md:text-sm mb-1 transition-colors line-clamp-1 tracking-tight ${
+          room.isAvailable ? 'text-white group-hover:text-primary' : 'text-gray-500'
+        }`}>
           {room.name}
         </h3>
         
@@ -65,10 +81,13 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, onExpandImage }) => 
         </div>
         
         <div className="flex flex-wrap items-center gap-1.5 mb-4">
-          <span className="text-[7px] font-black text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20 uppercase tracking-[0.15em]">
-            {room.occupancyType}
+          <span className={`text-[7px] font-black px-1.5 py-0.5 rounded border uppercase tracking-[0.15em] ${
+            room.isAvailable ? 'text-primary bg-primary/10 border-primary/20' : 'text-gray-600 bg-gray-600/10 border-gray-600/20'
+          }`}>
+            {room.occupancyType} sharing
           </span>
           <span className={`text-[7px] font-black px-1.5 py-0.5 rounded border uppercase tracking-[0.15em] ${
+            !room.isAvailable ? 'text-gray-600 bg-gray-600/10 border-gray-600/20' :
             room.genderPreference === 'Male' ? 'text-blue-400 bg-blue-400/10 border-blue-400/20' : 
             room.genderPreference === 'Female' ? 'text-pink-400 bg-pink-400/10 border-pink-400/20' : 
             'text-green-400 bg-green-400/10 border-green-400/20'
@@ -78,8 +97,10 @@ const RoomCard: React.FC<RoomCardProps> = ({ room, onClick, onExpandImage }) => 
         </div>
 
         <div className="mt-auto pt-2 border-t border-white/5">
-          <button className="w-full py-2 bg-[#252525] group-hover:bg-primary text-white text-[7px] md:text-[8px] font-black rounded-lg transition-all border border-white/5 group-hover:border-primary uppercase tracking-[0.2em]">
-            View details
+          <button className={`w-full py-2 text-white text-[7px] md:text-[8px] font-black rounded-lg transition-all border border-white/5 uppercase tracking-[0.2em] ${
+            room.isAvailable ? 'bg-[#252525] group-hover:bg-primary group-hover:border-primary' : 'bg-transparent text-gray-600'
+          }`}>
+            {room.isAvailable ? 'View details' : 'Currently Full'}
           </button>
         </div>
       </div>
