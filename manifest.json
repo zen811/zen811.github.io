@@ -2,7 +2,7 @@
 {
   "name": "PG Buddy",
   "short_name": "PGBuddy",
-  "start_url": "/#/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#181410",
   "theme_color": "#ff8000",

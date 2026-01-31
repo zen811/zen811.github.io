@@ -40,17 +40,28 @@ export const fetchRooms = async (): Promise<Room[]> => {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
     const text = await response.text();
+    // Regex matches the JSON payload inside the google visualization response wrapper
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
     if (!match || !match[1]) return [];
 
-    const jsonData = JSON.parse(match[1]);
-    const rows = jsonData.table.rows;
-    if (!rows) return [];
+    let jsonData;
+    try {
+        jsonData = JSON.parse(match[1]);
+    } catch (e) {
+        console.error("Failed to parse sheet JSON", e);
+        return [];
+    }
+
+    const rows = jsonData?.table?.rows;
+    if (!rows || !Array.isArray(rows)) return [];
 
     const FALLBACK_IMG = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675';
 
-    return rows.map((row: any, index: number) => {
-      const cols = row.c;
+    // Added explicit return type Room | null to the map callback to resolve the type predicate mismatch in the following filter.
+    return rows.map((row: any, index: number): Room | null => {
+      const cols = row?.c;
+      if (!cols || !Array.isArray(cols)) return null;
+
       const getValue = (idx: number) => cols[idx]?.v ?? '';
       const getNum = (idx: number) => {
         const val = cols[idx]?.v;
@@ -111,7 +122,7 @@ export const fetchRooms = async (): Promise<Room[]> => {
         coordinates: coords,
         featured: index % 5 === 0
       };
-    }).filter((room: Room) => room.isVerified === true);
+    }).filter((room): room is Room => room !== null && room.isVerified === true);
   } catch (error) {
     console.error("Error fetching room data:", error);
     return [];

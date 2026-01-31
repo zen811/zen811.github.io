@@ -1,22 +1,20 @@
 
 import React, { useState } from 'react';
-import { Room } from '../types';
+import { useNavigate, useOutletContext } from 'react-router-dom';
+import { useRooms } from '../context/RoomContext';
 import RoomCard from './RoomCard';
 
-interface LandingPageProps {
-  onBrowse: () => void;
-  onSearch: (q: string) => void;
-  onListProperty: () => void;
-  featuredRooms: Room[];
-  onRoomClick: (room: Room) => void;
-  onExpandImage: (url: string) => void;
-}
+const LIST_PROPERTY_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfnlEk8iCcgoU9uCJzbQ819ymUQTAQTIuoKpUfzfSucov0hTg/viewform?usp=sharing';
 
-const LandingPage: React.FC<LandingPageProps> = ({ onBrowse, onSearch, onListProperty, featuredRooms, onRoomClick, onExpandImage }) => {
+const LandingPage: React.FC = () => {
+  const { featuredRooms, setFilters } = useRooms();
+  const { setExpandedImage } = useOutletContext<{ setExpandedImage: (url: string | null) => void }>();
   const [query, setQuery] = useState('');
+  const navigate = useNavigate();
 
   const handleSearchSubmit = () => {
-    onSearch(query);
+    setFilters(prev => ({ ...prev, searchQuery: query }));
+    navigate('/listings');
   };
 
   return (
@@ -40,13 +38,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onBrowse, onSearch, onListPro
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 w-full max-w-md mx-auto">
             <button 
-              onClick={onBrowse}
+              onClick={() => navigate('/listings')}
               className="w-full sm:w-auto px-10 py-5 bg-[#ff8000] text-white font-black rounded-2xl shadow-2xl shadow-[#ff8000]/30 hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest"
             >
               Start Exploring
             </button>
             <button 
-              onClick={onListProperty}
+              onClick={() => window.open(LIST_PROPERTY_FORM_URL, '_blank')}
               className="w-full sm:w-auto px-10 py-5 border-2 border-white/10 text-white font-black rounded-2xl hover:bg-white/5 transition-all text-sm uppercase tracking-widest"
             >
               List Property
@@ -85,34 +83,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onBrowse, onSearch, onListPro
               <h2 className="text-4xl font-black text-white tracking-tight">Featured Homes.</h2>
               <p className="text-gray-500 mt-2 font-medium uppercase tracking-widest text-[10px]">Premium verified picks</p>
             </div>
-            <button onClick={onBrowse} className="text-primary font-black text-xs uppercase tracking-widest flex items-center gap-2">
+            <button onClick={() => navigate('/listings')} className="text-primary font-black text-xs uppercase tracking-widest flex items-center gap-2">
               View all <span className="material-symbols-outlined text-base">arrow_forward</span>
             </button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredRooms.slice(0, 4).map(room => (
-              <RoomCard key={room.id} room={room} onClick={onRoomClick} onExpandImage={onExpandImage} />
+              <RoomCard key={room.id} room={room} onExpandImage={setExpandedImage} />
             ))}
           </div>
-        </div>
-      </section>
-
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: 'verified', title: 'Verified PGs', desc: 'Real photos and updated prices from our live community sources.' },
-            { icon: 'chat_bubble', title: 'Direct Contact', desc: 'No middlemen. Get direct access to property owners via call.' },
-            { icon: 'payments', title: 'Zero Brokerage', desc: 'Save more. Connect directly and avoid paying hidden fees.' }
-          ].map((item, idx) => (
-            <div key={idx} className="bg-[#1e1e1e] border border-white/5 p-8 rounded-3xl">
-              <div className="w-12 h-12 bg-[#ff8000]/10 rounded-xl flex items-center justify-center text-[#ff8000] mb-6">
-                <span className="material-symbols-outlined text-2xl">{item.icon}</span>
-              </div>
-              <h3 className="text-xl font-black text-white mb-4">{item.title}</h3>
-              <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
-            </div>
-          ))}
         </div>
       </section>
     </div>

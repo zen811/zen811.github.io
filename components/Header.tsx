@@ -1,8 +1,8 @@
+
 import React from 'react';
 
 interface HeaderProps {
-  onSearch: (q: string) => void;
-  onNavigate: (view: 'home' | 'listings' | 'help' | 'contact' | 'terms' | 'saved') => void;
+  onNavigate: (path: string) => void;
   enquiryFormUrl: string;
 }
 
@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ enquiryFormUrl, onNavigate }) => {
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div 
           className="flex items-center gap-2.5 cursor-pointer group select-none" 
-          onClick={() => window.location.hash = '#/'}
+          onClick={() => onNavigate('/')}
         >
           <div className="h-10 w-10 flex items-center justify-center overflow-hidden bg-white/5 rounded-lg border border-white/5 relative">
             <img 
@@ -34,17 +34,17 @@ const Header: React.FC<HeaderProps> = ({ enquiryFormUrl, onNavigate }) => {
         </div>
 
         <nav className="hidden lg:flex items-center gap-8">
-          <button onClick={() => window.location.hash = '#/'} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">Home</button>
-          <button onClick={() => window.location.hash = '#/listings'} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">Listings</button>
-          <button onClick={() => window.location.hash = '#/saved'} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors flex items-center gap-1.5">
+          <button onClick={() => onNavigate('/')} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">Home</button>
+          <button onClick={() => onNavigate('/listings')} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">Listings</button>
+          <button onClick={() => onNavigate('/saved')} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[16px] filled">favorite</span> Saved
           </button>
-          <button onClick={() => window.location.hash = '#/about'} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">About</button>
+          <button onClick={() => onNavigate('/about')} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary transition-colors">About</button>
         </nav>
 
         <div className="flex items-center gap-3">
           <button 
-            onClick={() => window.location.hash = '#/saved'}
+            onClick={() => onNavigate('/saved')}
             className="lg:hidden w-10 h-10 flex items-center justify-center bg-white/5 rounded-lg text-gray-400"
           >
             <span className="material-symbols-outlined filled">favorite</span>

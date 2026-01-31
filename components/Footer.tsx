@@ -1,6 +1,11 @@
+
 import React from 'react';
 
-const Footer: React.FC = () => {
+interface FooterProps {
+  onNavigate: (path: string) => void;
+}
+
+const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -33,9 +38,9 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-black text-xs uppercase tracking-[0.2em] mb-8">Navigation</h4>
             <ul className="space-y-4">
-              <li><button onClick={() => window.location.hash = '#/'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Home</button></li>
-              <li><button onClick={() => window.location.hash = '#/listings'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Browse Listings</button></li>
-              <li><button onClick={() => window.location.hash = '#/saved'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">My Saved Rooms</button></li>
+              <li><button onClick={() => onNavigate('/')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Home</button></li>
+              <li><button onClick={() => onNavigate('/listings')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Browse Listings</button></li>
+              <li><button onClick={() => onNavigate('/saved')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">My Saved Rooms</button></li>
             </ul>
           </div>
 
@@ -43,9 +48,9 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-white font-black text-xs uppercase tracking-[0.2em] mb-8">Support</h4>
             <ul className="space-y-4">
-              <li><button onClick={() => window.location.hash = '#/about'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Help Centre</button></li>
-              <li><button onClick={() => window.location.hash = '#/contact'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Contact Us</button></li>
-              <li><button onClick={() => window.location.hash = '#/terms'} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Terms of Service</button></li>
+              <li><button onClick={() => onNavigate('/about')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Help Centre</button></li>
+              <li><button onClick={() => onNavigate('/contact')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Contact Us</button></li>
+              <li><button onClick={() => onNavigate('/terms')} className="text-gray-500 hover:text-primary transition-colors text-sm font-bold">Terms of Service</button></li>
             </ul>
           </div>
 

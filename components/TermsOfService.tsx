@@ -1,11 +1,19 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const TermsOfService: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+// Fixed the missing onBack error in router by using useNavigate internally for back navigation
+const TermsOfService: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate('/');
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <button 
-        onClick={onBack}
+        onClick={handleBack}
         className="flex items-center gap-2 text-gray-500 hover:text-[#ff8000] text-sm font-medium mb-8"
       >
         <span className="material-symbols-outlined text-sm">arrow_back</span> Back to Home
