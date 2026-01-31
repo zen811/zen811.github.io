@@ -1,4 +1,3 @@
-
 import { Room } from '../types';
 
 const SHEET_ID = '1bJbWy_tJDTFStTDDKc6MAkeAIEOQhicGyS4t2o16UD0';
@@ -16,21 +15,15 @@ const MOCK_COORDS: Record<string, { lat: number, lng: number }> = {
 
 /**
  * Transforms Google Drive links into direct, mobile-friendly CDN URLs.
- * Uses lh3.googleusercontent.com which bypasses many mobile-specific cross-origin 
- * and tracking blocks that affect standard drive.google.com/thumbnail links.
  */
 const transformDriveUrl = (url: string): string => {
   if (!url || typeof url !== 'string') return '';
   const trimmedUrl = url.trim();
-  
-  // Capture ID from various formats: /d/ID, ?id=ID, /file/d/ID/view, or just a raw ID
   const driveMatch = trimmedUrl.match(/(?:id=|d\/|open\?id=|^)([\w-]{25,45})(?:[/?&]|$)/);
-  
   if (driveMatch) {
     const fileId = driveMatch[1];
     return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
   }
-  
   return trimmedUrl;
 };
 
@@ -40,7 +33,6 @@ export const fetchRooms = async (): Promise<Room[]> => {
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
     const text = await response.text();
-    // Regex matches the JSON payload inside the google visualization response wrapper
     const match = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\);/);
     if (!match || !match[1]) return [];
 
@@ -48,7 +40,6 @@ export const fetchRooms = async (): Promise<Room[]> => {
     try {
         jsonData = JSON.parse(match[1]);
     } catch (e) {
-        console.error("Failed to parse sheet JSON", e);
         return [];
     }
 
@@ -57,7 +48,6 @@ export const fetchRooms = async (): Promise<Room[]> => {
 
     const FALLBACK_IMG = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=1200&h=675';
 
-    // Added explicit return type Room | null to the map callback to resolve the type predicate mismatch in the following filter.
     return rows.map((row: any, index: number): Room | null => {
       const cols = row?.c;
       if (!cols || !Array.isArray(cols)) return null;
@@ -73,7 +63,6 @@ export const fetchRooms = async (): Promise<Room[]> => {
       const verificationStatus = getValue(13);
       const isVerified = Number(verificationStatus) === 1 || String(verificationStatus).toLowerCase() === 'true';
       
-      // Availability is index 17 (Column 18)
       const availabilityValue = getNum(17);
       const isAvailable = availabilityValue !== 0;
 
@@ -100,31 +89,33 @@ export const fetchRooms = async (): Promise<Room[]> => {
         }
       }
 
+      const id = `pg-${index}`;
+
       return {
-        id: `pg-${index}`,
-        name: String(getValue(1) || 'Premium Accommodation'),
-        ownerName: String(getValue(2) || 'Verified Partner'),
+        id,
+        name: String(getValue(1) || 'Premium PG'),
+        ownerName: String(getValue(2) || 'Verified Owner'),
         phoneNumber: String(getValue(3) || 'N/A'),
         price: getNum(4),
         location,
         locationLink: String(getValue(6) || '#'),
-        description: String(getValue(7) || 'Contact owner for more details.'),
+        description: String(getValue(7) || 'Premium living space with all modern amenities.'),
         occupancyType: (getValue(8) as any) || 'Single',
         genderPreference: (getValue(9) as any) || 'Unisex',
         flatType, 
         photos: transformedPhotos.length > 0 ? transformedPhotos : [FALLBACK_IMG],
         amenities: String(getValue(11)).split(',').map(a => a.trim()).filter(a => a.length > 0),
         rules: String(getValue(12)).split(',').map(r => r.trim()).filter(r => r.length > 0),
-        rating: manualRating > 0 ? manualRating : 3.0, 
-        reviewsCount: manualReviews > 0 ? manualReviews : 15,
+        rating: manualRating > 0 ? manualRating : 4.2, 
+        reviewsCount: manualReviews > 0 ? manualReviews : 24,
         isVerified,
         isAvailable,
         coordinates: coords,
-        featured: index % 5 === 0
+        featured: index % 4 === 0
       };
     }).filter((room): room is Room => room !== null && room.isVerified === true);
   } catch (error) {
-    console.error("Error fetching room data:", error);
+    console.error("Fetch Rooms error:", error);
     return [];
   }
 };

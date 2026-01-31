@@ -1,12 +1,20 @@
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { RoomProvider, useRooms } from './context/RoomContext';
 import Router from './router';
 
 const AppContent: React.FC = () => {
-  const { isLoading } = useRooms();
+  const { isLoading, rooms } = useRooms();
+  const [hasTimedOut, setHasTimedOut] = useState(false);
 
-  if (isLoading) {
+  // Safety timeout: If loading takes more than 8 seconds, something might be wrong with the connection
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isLoading) setHasTimedOut(true);
+    }, 8000);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
+
+  if (isLoading && !hasTimedOut) {
     return (
       <div className="min-h-screen bg-[#181410] flex flex-col items-center justify-center text-white p-6">
         <div className="h-20 w-20 mb-6 flex items-center justify-center bg-white/5 rounded-2xl border border-white/5 animate-pulse relative overflow-hidden">
@@ -28,6 +36,7 @@ const AppContent: React.FC = () => {
     );
   }
 
+  // If we timed out but still no data, or data is loaded, try to render the router
   return <Router />;
 };
 
